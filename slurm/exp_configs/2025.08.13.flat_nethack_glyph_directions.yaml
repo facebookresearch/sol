@@ -1,0 +1,34 @@
+env: [
+'nethack_challenge',
+]
+
+with_sol: [False]
+with_flat_intrinsic_rewards: [True]
+
+use_glyph_directions: [True, False]
+
+model: ['SymbolicGlyphTokenNet']
+inv_input_type: ["tok"]
+
+reward_scale: [0.01]
+
+reward_scale_score: [1.0]
+reward_scale_health: [0.0]
+
+character: [
+'mon-hum-neu-mal',
+'val-hum-neu-fem',
+#'bar-hum-neu-fem',
+#'ran-hum-neu-mal',
+#'arc-hum-neu-fem',
+]
+
+rollout: [256]
+gamma: [0.99]
+value_loss_coeff: [0.5]
+exploration_loss_coeff: [0.003]
+reward_clip: [10000.0]
+map_input_type: ['glyphs']
+crop_dim: [12]
+num_epochs: [1]
+batch_size: [32768]

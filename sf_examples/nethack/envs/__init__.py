@@ -1,0 +1,3 @@
+from sf_examples.nethack.envs.nethack_score_fixed_eat import NetHackScoreFixedEat
+from sf_examples.nethack.envs.minihack_tasks import MiniHackTreasureDash
+from sf_examples.nethack.envs.minihack_tasks import MiniHackZombieHorde

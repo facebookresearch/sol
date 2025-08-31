@@ -1,0 +1,50 @@
+env: [
+'mujoco_ant_umaze_dense_fixed',
+]
+
+mujoco_ctrl_cost_weight: [0.01]
+mujoco_contact_cost_weight: [0.0000005]
+mujoco_survive_cost_weight: [1.0]
+mujoco_terminate_when_unhealthy: [False]
+mujoco_success_reward_weight: [5.0]
+mujoco_max_episode_steps: [3000]
+
+reward_type: [
+'diff',
+]
+
+with_sol: [True]
+sol_controller_reward_scale: [0.0001, 0.001, 0.01]
+sol_controller_exploration_scale: [10.0, 30.0, 100.0, 300.0, 1000.0]
+sol_num_option_steps: [-1]
+sol_iso_loss_coeff: [0.0]
+sol_bootstrap_on_option_switch: [True]
+
+
+reward_scale_options: [1.0]
+reward_scale_goal: [1.0]
+
+with_flat_intrinsic_rewards: [False]
+
+async_rl: [True]
+
+env_frameskip: [1]
+gamma: [0.99]
+
+
+batch_size: [32768]
+rollout: [1024]
+recurrence: [1024]
+reward_scale: [1.0]
+normalize_input: [False]
+learning_rate: [0.001]
+max_grad_norm: [1.0]
+value_loss_coeff: [0.5]
+num_batches_per_epoch: [1]
+
+adaptive_stddev: [True]
+exploration_loss_coeff: [0.0001]
+num_epochs: [10]
+num_workers: [8]
+num_envs_per_worker: [8]
+

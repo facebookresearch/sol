@@ -1,0 +1,69 @@
+MAZE: "mylevel",' '
+INIT_MAP:solidfill,' '
+GEOMETRY:left,top
+MAP
+-------------------------------------------------------------------------
+|.......................................................................|
+-------------------------------------------------------------------------
+ENDMAP
+
+REGION:(1,1,79,21),lit,"ordinary"
+
+OBJECT:random, (6,1)
+OBJECT:random, (8,1)
+OBJECT:random, (10,1)
+OBJECT:random, (12,1)
+OBJECT:random, (14,1)
+OBJECT:random, (16,1)
+OBJECT:random, (18,1)
+OBJECT:random, (20,1)
+OBJECT:random, (22,1)
+OBJECT:random, (24,1)
+OBJECT:random, (26,1)
+OBJECT:random, (28,1)
+OBJECT:random, (30,1)
+OBJECT:random, (32,1)
+OBJECT:random, (34,1)
+OBJECT:random, (36,1)
+OBJECT:random, (38,1)
+OBJECT:random, (40,1)
+OBJECT:random, (42,1)
+OBJECT:random, (44,1)
+OBJECT:random, (46,1)
+OBJECT:random, (48,1)
+OBJECT:random, (50,1)
+OBJECT:random, (52,1)
+
+
+$gold_amt=1
+$gold_amt_big=1
+
+GOLD:1,(6,1)
+GOLD:1,(8,1)
+GOLD:1,(10,1)
+GOLD:1,(12,1)
+GOLD:1,(14,1)
+GOLD:1,(16,1)
+GOLD:1,(18,1)
+GOLD:1,(20,1)
+GOLD:1,(22,1)
+GOLD:1,(24,1)
+GOLD:1,(26,1)
+GOLD:1,(28,1)
+GOLD:1,(30,1)
+GOLD:1,(32,1)
+GOLD:1,(34,1)
+GOLD:1,(36,1)
+GOLD:1,(38,1)
+GOLD:1,(40,1)
+GOLD:1,(42,1)
+GOLD:1,(44,1)
+GOLD:1,(46,1)
+GOLD:1,(48,1)
+GOLD:1,(50,1)
+GOLD:1,(52,1)
+
+
+STAIR: (1,1),down
+
+BRANCH:(5,1,5,1),(6,1,6,1)
