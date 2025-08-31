@@ -30,11 +30,7 @@ python sweep.py --expfile exp_configs/{sweep_file}.yaml --wandb_proj {wandb_proj
 
 ## Dependencies
 
-Make sure to use python 3.12, not 3.13 (that is not compatible with `gymnasium_robotics`). Otherwise the dependencies are pretty much those of Sample Factory. You can also just clone my conda env:
-
-```
-/private/home/mikaelhenaff/.conda/envs/sf2-exp2
-```
+Make sure to use python 3.12, not 3.13 (that is not compatible with `gymnasium_robotics`). Otherwise the dependencies are pretty much those of Sample Factory. 
 
 ## Notes
 
