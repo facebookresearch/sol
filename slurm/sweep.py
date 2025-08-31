@@ -2,7 +2,6 @@
 
 import numpy as np
 import numpy.random as npr
-
 import math
 import time
 import os
@@ -18,8 +17,6 @@ from subprocess import Popen, DEVNULL
 from pprint import pprint
 
 MAX_JOBS = 120
-
-
 
 DEFAULT_ARGS = {
     'train_for_env_steps': 50000000000,
@@ -85,7 +82,8 @@ class Overrides(object):
                
 # good for checking if we have reached max non-array jobs, so we don't get locked out...
 def num_jobs_running():
-    return int(subprocess.check_output(f"squeue -u $USER -h -o \"%i\" | cut -d '_' -f 1 | sort -u | wc -l", shell=True))
+    cmd = f"squeue -u $USER -h -o \"%i\" | cut -d '_' -f 1 | sort -u | wc -l"
+    return int(subprocess.check_output(cmd, shell=True))
         
 
 
@@ -99,7 +97,7 @@ def main():
     parser.add_argument('--expfile', default='exp_configs/test.yaml')
     parser.add_argument('--exp_name', default='exp')
     parser.add_argument('--wandb_proj', default='test')
-    parser.add_argument('--partition', default='cortex' if username == 'mikaelhenaff' else 'learnfair')
+    parser.add_argument('--partition', default='')
     parser.add_argument('--num_gpus', default=1)
     parser.add_argument('--num_cpus', default=50)
     parser.add_argument('--days', default=3)
@@ -127,10 +125,8 @@ def main():
         BASE_CMD = 'python ../sf_examples/nethack/train_nethack.py'
     elif 'mujoco' in env_name:
         BASE_CMD = 'python ../sf_examples/mujoco/train_mujoco.py'
-    elif 'doom' in env_name:
-        BASE_CMD = 'python ../sf_examples/vizdoom/train_vizdoom.py'
     else:
-        raise ValueError(f'env_name {env_name} should include either: nethack, mujoco, doom')
+        raise ValueError(f'env_name {env_name} should include either: nethack, mujoco')
     
     # read SBATCH template and fill in fields
     script_template = open(args.script, 'r').read().strip()
@@ -146,7 +142,7 @@ def main():
 
     # in dry mode, we test locally for debugging.
     if args.dry:
-        tmp_dir = f'/checkpoint/{username}/tmp'
+        tmp_dir = f'/tmp'
         cmd_args = ' '.join(f'--{k} {v}' for k, v in list_cmd_args[0].items())
         cmd = f'CUDA_VISIBLE_DEVICES=0 {BASE_CMD} {cmd_args}'
         cmd += f' --train_dir {tmp_dir} --with_wandb False'
