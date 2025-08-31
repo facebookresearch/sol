@@ -1,0 +1,24 @@
+---
+repos:
+  - hooks:
+      - id: ruff
+      - id: ruff-format
+    repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.4.3
+  - hooks:
+      - id: cmake-format
+    repo: https://github.com/cheshirekow/cmake-format-precommit
+    rev: v0.6.13
+  - hooks:
+      - description: Format files with clang-format
+        entry: clang-format
+        files: ^(src\/nle|include\/nle|win\/rl|sys\/unix\/nle).*\.(c|cc|cxx|cpp|cu|h|hpp|hxx|cuh|proto)$
+        id: clang-format
+        language: system
+        name: clang-format
+    repo: local
+  - hooks:
+      - id: isort
+        name: isort (python)
+    repo: https://github.com/pycqa/isort
+    rev: 5.13.2
