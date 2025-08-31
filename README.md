@@ -1,4 +1,6 @@
-# Scalable Option Learning in High-Throughput Environments
+# Scalable Option Learning 
+
+Official implementation of the SOL algorithm described in the paper "Scalable Option Learning in High-Throughput Environments" by Mikael Henaff, Scott Fujimoto and Michael Rabbat. 
 
 ## Installation
 
