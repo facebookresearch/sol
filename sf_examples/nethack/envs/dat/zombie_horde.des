@@ -1,0 +1,48 @@
+MAZE: "mylevel", ' '
+INIT_MAP:solidfill,' '
+GEOMETRY:left,top
+MAP
+------------------
+|................|
+|................|
+|................|
+|................|
+|................|
+|................|
+|................|
+|................|
+|................|
+|................|
+|................|
+|................|
+|................|
+------------------
+ENDMAP
+
+REGION:(1,1,79,21),lit,"ordinary"
+
+REGION:(1,1,3,3),lit,"temple"
+ALTAR:(2,2),coaligned,shrine
+
+
+$monster_area = selection:fillrect (6,6,12,12)
+
+
+MONSTER:('Z', "Human zombie"),rndcoord($monster_area)
+MONSTER:('Z', "Human zombie"),rndcoord($monster_area)
+MONSTER:('Z', "Human zombie"),rndcoord($monster_area)
+MONSTER:('Z', "Human zombie"),rndcoord($monster_area)
+MONSTER:('Z', "Human zombie"),rndcoord($monster_area)
+MONSTER:('Z', "Human zombie"),rndcoord($monster_area)
+MONSTER:('Z', "Human zombie"),rndcoord($monster_area)
+MONSTER:('Z', "Human zombie"),rndcoord($monster_area)
+MONSTER:('Z', "Human zombie"),rndcoord($monster_area)
+MONSTER:('Z', "Human zombie"),rndcoord($monster_area)
+MONSTER:('Z', "Human zombie"),rndcoord($monster_area)
+MONSTER:('Z', "Human zombie"),rndcoord($monster_area)
+MONSTER:('Z', "Human zombie"),rndcoord($monster_area)
+MONSTER:('Z', "Human zombie"),rndcoord($monster_area)
+MONSTER:('Z', "Human zombie"),rndcoord($monster_area)
+MONSTER:('Z', "Human zombie"),rndcoord($monster_area)
+
+BRANCH:(1,2,1,2),(2,6,2,6)

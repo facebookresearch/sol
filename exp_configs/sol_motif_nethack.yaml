@@ -1,0 +1,39 @@
+env: ['nethack_score_fixed_eat']
+
+with_sol: [True]
+sol_option_rewards: ['score+health']
+sol_controller_reward_key: ['score']
+sol_controller_reward_scale: [0.001]
+sol_controller_exploration_scale: [10.0]
+sol_num_option_steps: [-1]
+sol_bootstrap_on_option_switch: [True]
+
+
+reward_scale: [0.01]
+reward_scale_score: [1.0]
+reward_scale_health: [10.0]
+
+llm_reward_type: ['motif_legacy']
+motif_reward_dir: ['/private/home/mikaelhenaff/projects/rl-llm3/motif/train_dir/reward_saving_dir/standard_reward_llama2']
+llm_reward_coeff: [0.1]
+sol_options_to_add_llm_reward: ['0']
+
+
+
+character: [
+'mon-hum-neu-mal',
+'ran-hum-neu-mal',
+'arc-hum-neu-fem',
+]
+
+rollout: [256]
+gamma: [0.99]
+value_loss_coeff: [0.5]
+exploration_loss_coeff: [0.003]
+reward_clip: [10000.0]
+model: ['SymbolicGlyphNet']
+map_input_type: ['glyphs']
+inv_input_type: ["none"]
+crop_dim: [12]
+num_epochs: [1]
+batch_size: [32768]

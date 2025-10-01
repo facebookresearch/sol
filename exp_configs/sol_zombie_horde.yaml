@@ -1,0 +1,31 @@
+env: ['minihack_zombie_horde']
+
+train_for_env_steps: [4000000000]
+
+
+with_sol: [True]
+sol_option_rewards: ['score,health', 'score,score2']
+sol_controller_reward_key: ['score']
+sol_controller_reward_scale: [0.001]
+sol_controller_exploration_scale: [1.0, 3.0]
+sol_num_option_steps: [-1]
+sol_bootstrap_on_option_switch: [True]
+
+
+reward_scale: [0.01]
+reward_scale_score: [1.0]
+reward_scale_health: [20.0]
+
+
+character: ['mon-hum-neu-mal']
+rollout: [256]
+gamma: [0.99]
+value_loss_coeff: [0.5]
+exploration_loss_coeff: [0.003]
+reward_clip: [100.0]
+model: ['SymbolicGlyphNet']
+map_input_type: ['glyphs']
+inv_input_type: ["none"]
+crop_dim: [12]
+num_workers: [48]
+num_envs_per_worker: [40]
