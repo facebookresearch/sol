@@ -35,7 +35,7 @@ executing==2.2.0
 Farama-Notifications==0.0.4
 faster-fifo==1.5.2
 fastjsonschema==2.21.1
-filelock==3.18.0
+filelock==3.20.1
 fonttools==4.58.5
 fqdn==1.5.1
 fsspec==2025.5.1
