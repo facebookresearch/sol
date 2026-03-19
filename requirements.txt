@@ -96,7 +96,7 @@ nbformat==5.10.4
 nest-asyncio==1.6.0
 networkx==3.5
 nle==1.2.0
-nltk==3.9.1
+nltk==3.9.3
 nodeenv==1.9.1
 notebook==7.4.4
 notebook_shim==0.2.4
