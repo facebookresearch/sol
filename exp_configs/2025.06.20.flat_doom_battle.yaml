@@ -1,0 +1,11 @@
+env: ['doom_battle', 'doom_battle2', 'doom_duel_bots', 'doom_deathmatch_bots']
+train_for_env_steps: [4000000000]
+env_frameskip: [4]
+use_rnn: [True]
+batch_size: [2048]
+wide_aspect_ratio: [False]
+num_workers: [20]
+num_envs_per_worker: [20]
+num_policies: [1]
+
+with_sol: [False]

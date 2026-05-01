@@ -24,6 +24,7 @@ class SymbolicGlyphNet(Encoder):
         self.encoders = nn.ModuleDict()
 
         self.use_prev_action = cfg.use_prev_action
+        self.use_glyph_directions = cfg.use_glyph_directions
 
         glyphs_shape = obs_space["glyphs"].shape
         
@@ -57,6 +58,11 @@ class SymbolicGlyphNet(Encoder):
             self.num_actions = None
             self.prev_actions_dim = 0
 
+        if self.use_glyph_directions:
+            self.glyph_directions_dim = self.obs_space['glyph_directions'].shape[0]
+        else:
+            self.glyph_directions_dim = 0
+
 
         self.encoder_out_size = sum(
             [
@@ -64,6 +70,7 @@ class SymbolicGlyphNet(Encoder):
                 calc_num_elements(self.bottomline_encoder, bottomline_shape),
                 calc_num_elements(self.crop_conv, (self.edim, self.crop_dim, self.crop_dim)),
                 self.prev_actions_dim,
+                self.glyph_directions_dim,
             ]
         )
 
@@ -71,7 +78,7 @@ class SymbolicGlyphNet(Encoder):
             self.num_policies = self.obs_space['rewards'].shape[0]
             self.policy_encoder = nn.Linear(self.num_policies, self.edim)
             self.encoder_out_size += self.edim
-        
+
 
 
     def _select(self, embed, x, max_dim=None):
@@ -88,6 +95,7 @@ class SymbolicGlyphNet(Encoder):
         
 
     def forward(self, obs_dict):
+
 
         topline = obs_dict["message"]
         bottom_line = obs_dict["blstats"]
@@ -106,7 +114,7 @@ class SymbolicGlyphNet(Encoder):
         crop_glyphs = self.crop(glyphs, coordinates)
         crop_embed = self._select(self.glyph_embed, crop_glyphs).permute(0, 3, 1, 2)
         if self.cfg.with_sol:
-            policy_embed = self.policy_encoder(F.one_hot(obs_dict['current_policy'].long(), self.num_policies).float().view(B, -1))
+            policy_embed = self.policy_encoder(obs_dict["current_policy_vec"].float().view(B, -1))
             encodings.append(policy_embed)
             crop_embed = crop_embed + policy_embed.unsqueeze(-1).unsqueeze(-1)
         
@@ -116,6 +124,9 @@ class SymbolicGlyphNet(Encoder):
         if self.use_prev_action:
             prev_actions = obs_dict["prev_actions"].long().view(B)
             encodings.append(torch.nn.functional.one_hot(prev_actions, self.num_actions))
+
+        if self.use_glyph_directions:
+            encodings.append(obs_dict["glyph_directions"])
 
         return torch.cat(encodings, dim=1)
 

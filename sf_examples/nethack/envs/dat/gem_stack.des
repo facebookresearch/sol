@@ -1,0 +1,13 @@
+LEVEL: "mylevel"
+
+ROOM: "ordinary" , lit, random, random, (2,2) {
+  IF[50%] {
+    OBJECT:('*',"diamond"), (0,0), cursed,name:"pick me up"
+    OBJECT:('*',"diamond"), (0,0), cursed,name:"put me down"
+  } ELSE {
+    OBJECT:('*',"diamond"), (0,0), cursed,name:"put me down"
+    OBJECT:('*',"diamond"), (0,0), cursed,name:"pick me up"
+  }
+}
+
+RANDOM_CORRIDORS

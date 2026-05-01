@@ -1,0 +1,23 @@
+env: ['minihack_ring_inv']
+
+with_sol: [False]
+with_flat_intrinsic_rewards: [True]
+
+reward_scale: [0.01]
+reward_scale_score: [1.0, 0.3]
+
+#model: ['SymbolicGlyphNet']
+#inv_input_type: ["none"]
+
+model: ['SymbolicGlyphTokenNet']
+inv_input_type: ["tok"]
+
+
+character: ['mon-hum-neu-mal']
+rollout: [256]
+gamma: [0.99]
+value_loss_coeff: [0.5]
+exploration_loss_coeff: [0.003]
+reward_clip: [100.0]
+map_input_type: ['glyphs']
+crop_dim: [12]

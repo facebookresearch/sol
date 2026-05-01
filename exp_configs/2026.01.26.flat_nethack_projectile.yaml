@@ -1,0 +1,44 @@
+env: ['nethack_challenge']
+
+with_sol: [False]
+with_flat_intrinsic_rewards: [True]
+
+reward_scale: [0.01]
+
+reward_scale_scout: [1.0]
+reward_scale_score: [0.0]
+reward_scale_health: [0.0]
+reward_scale_eating: [0.0]
+reward_scale_experience: [0.0]
+reward_scale_dlvl_up: [0.0]
+reward_scale_armor: [0.0]
+reward_scale_buc: [0.0]
+reward_scale_projectile: [0.0, 1.0, 3.0, 10.0, 30.0, 100.0]
+
+character: ['@', 'ran-hum-neu-mal']
+
+
+use_spellcasting_wrapper: [False]
+use_dungeon_overview_wrapper: [True]
+use_menu_selection_wrapper: [True]
+
+
+inv_encoder_type: ['att']
+inv_query_heads: [4]
+
+
+rollout: [256]
+gamma: [0.999]
+value_loss_coeff: [0.5]
+exploration_loss_coeff: [0.003]
+reward_clip: [10000.0]
+
+model: ['SymbolicGlyphTokenNetEmbeddingBag']
+map_input_type: ['glyphs']
+inv_input_type: ["tok"]
+
+crop_dim: [12]
+num_epochs: [1]
+batch_size: [32768]
+
+num_workers: [64]

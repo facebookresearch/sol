@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from typing import Dict, Optional
 
+import os
+
 import gymnasium as gym
 import torch
 from torch import Tensor, nn
@@ -18,6 +20,9 @@ from sample_factory.model.action_parameterization import (
 from sample_factory.model.model_utils import model_device
 from sample_factory.utils.normalize import ObservationNormalizer
 from sample_factory.utils.typing import ActionSpace, Config, ObsSpace
+
+from torch.nn.parallel import DistributedDataParallel as DDP
+
 
 
 class ActorCritic(nn.Module, Configurable):
@@ -156,6 +161,7 @@ class ActorCriticSharedWeights(ActorCritic):
         self.action_parameterization = self.get_action_parameterization(decoder_out_size)
 
         self.apply(self.initialize_weights)
+        
 
     def forward_head(self, normalized_obs_dict: Dict[str, Tensor]) -> Tensor:
         x = self.encoder(normalized_obs_dict)

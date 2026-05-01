@@ -1,0 +1,23 @@
+LEVEL: "mylevel"
+INIT_MAP:solidfill,' '
+GEOMETRY:left,top
+MAP
+.......
+.......
+.......
+.......
+ENDMAP
+
+
+IF[50%] {
+ OBJECT:('[',"leather armor"), (0,0), uncursed
+ OBJECT:('[',"silver dragon scale mail"),(0,0), uncursed
+} ELSE {
+ OBJECT:('[',"silver dragon scale mail"),(0,0), uncursed
+ OBJECT:('[',"leather armor"), (0,0), uncursed
+}
+
+
+
+BRANCH:(0,0,0,0), (2,3,2,3)
+

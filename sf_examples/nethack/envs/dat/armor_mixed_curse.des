@@ -1,0 +1,20 @@
+LEVEL: "mylevel"
+
+ROOM: "ordinary" , lit, random, random, (10,10) {
+  ALTAR: random,coaligned,shrine
+  OBJECT:('%',"food ration"), random, blessed
+  OBJECT:('[',"leather armor"), random, uncursed, +5
+  OBJECT:('[',"leather armor"), random, cursed, -6
+  OBJECT:('[',"leather armor"), random, cursed, -6
+  OBJECT:('[',"elven leather helm"), random, blessed, +5
+  OBJECT:('[',"elven leather helm"), random, cursed, -6
+  OBJECT:('[',"elven leather helm"), random, cursed, -6
+  OBJECT:('[',"elven boots"), random, uncursed, +5  
+  OBJECT:('[',"elven boots"), random, cursed, -6  
+  OBJECT:('[',"elven boots"), random, cursed, -6  
+  OBJECT:('[',"leather gloves"), random, blessed, +3
+  OBJECT:('[',"leather gloves"), random, cursed, -4
+  OBJECT:('[',"leather gloves"), random, cursed, -4
+}
+
+RANDOM_CORRIDORS

@@ -1,0 +1,55 @@
+env: ['nethack_challenge_no_writing']
+
+with_sol: [True]
+sol_option_rewards: ['scout,dlvl_up']
+sol_controller_reward_key: ['scout']
+sol_controller_reward_scale: [0.001]
+sol_num_option_steps: [-1]
+sol_iso_loss_coeff: [0.0]
+sol_bootstrap_on_option_switch: [True]
+
+
+train_for_env_steps: [2000000000]
+
+use_inv_selection_wrapper: [True]
+
+#inv_selection_wrapper_version: [0]
+
+tokenizer_name: ['dnd']
+max_token_length: [12]
+max_menu_items: [10]
+max_inv_items: [24]
+
+
+
+reward_scale: [0.01]
+reward_scale_score: [0.0]
+reward_scale_scout: [1.0]
+reward_scale_experience: [0.0]
+reward_scale_health: [0.0]
+reward_scale_dlvl_up: [100.0]
+
+character: [
+'mon-hum-neu-mal',
+]
+
+inv_encoder_type: ['att']
+inv_query_heads: [4]
+
+
+rollout: [256]
+gamma: [0.999]
+value_loss_coeff: [0.5]
+exploration_loss_coeff: [0.003]
+reward_clip: [10000.0]
+
+model: ['SymbolicGlyphTokenNetEmbeddingBagBatched']
+map_input_type: ['glyphs']
+inv_input_type: ["tok"]
+
+
+crop_dim: [12]
+num_epochs: [1]
+batch_size: [32768]
+
+num_workers: [72]

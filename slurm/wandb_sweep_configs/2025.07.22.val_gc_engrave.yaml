@@ -1,0 +1,81 @@
+program: ../sf_examples/nethack/train_nethack.py
+entity: michaelmatthews
+project: sf2
+method: grid
+metric:
+  goal: maximize
+  name: reward/reward
+command:
+  - ${env}
+  - python3
+  - ${program}
+  - ${args_no_boolean_flags}
+parameters:
+  seed:
+    values: [0, 1, 2, 3, 4]
+  env:
+    value: "nethack_challenge"
+  character:
+    value: "val-dwa-law-fem"
+  use_msg_tok:
+    value: "true"
+
+  with_gc:
+    value: "true"
+  gc_message_goals:
+    value: "Something is engraved here on the floor"
+  gc_include_ext_reward:
+    value: "false"
+  gc_terminate_on_success:
+    value: "true"
+  gc_constant_reward:
+    value: -0.01
+  gc_reward_coeff:
+    value: 100.
+
+  model:
+    value: "SymbolicGlyphTokenNetGC"
+  map_input_type:
+    value: "glyphs"
+  crop_dim:
+    value: 12
+  inv_input_type:
+    value: "tok"
+
+  train_for_env_steps:
+    value: 50000000000
+  batch_size:
+    value: 32768
+  rollout:
+    value: 256
+  reward_scale:
+    value: 0.01
+  gamma:
+    value: 0.99
+  reward_clip:
+    value: 10000.0
+  with_vtrace:
+    value: "true"
+  recurrence:
+    value: 256
+  normalize_returns:
+    value: "false"
+  exploration_loss_coeff:
+    value: 0.003
+  value_loss_coeff:
+    value: 0.5
+
+  restart_behavior:
+    value: "restart"
+  train_dir:
+    value: "wandb_auto"
+  with_wandb:
+    value: "True"
+  wandb_dir:
+    value: "/checkpoint/michaelmatthews/wandb/"
+  num_workers:
+    value: 48
+  num_envs_per_worker:
+    value: 40
+  experiment_summaries_interval:
+    value: 100

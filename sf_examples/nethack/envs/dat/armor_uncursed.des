@@ -1,0 +1,17 @@
+LEVEL: "mylevel"
+
+ROOM: "ordinary" , lit, random, random, (10,10) {
+  STAIR: random, up
+  OBJECT:('%',"food ration"), random, blessed
+  OBJECT:('[',"silver dragon scale mail"), random, uncursed
+  OBJECT:('[',"studded leather armor"), random, uncursed
+  OBJECT:('[',"dwarvish iron helm"), random, uncursed
+  OBJECT:('[',"elven leather helm"), random, uncursed
+  OBJECT:('[',"iron shoes"), random, uncursed
+  OBJECT:('[',"elven boots"), random, uncursed
+  OBJECT:('[',"cloak of protection"), random, uncursed
+  OBJECT:('[',"orcish cloak"), random, uncursed
+  OBJECT:('[',"leather gloves"), random, uncursed
+}
+
+RANDOM_CORRIDORS

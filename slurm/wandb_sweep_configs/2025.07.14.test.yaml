@@ -1,0 +1,69 @@
+program: ../sf_examples/nethack/train_nethack.py
+entity: michaelmatthews
+project: sf2
+method: random
+metric:
+  goal: maximize
+  name: reward/reward
+command:
+  - ${env}
+  - python3
+  - ${program}
+  - ${args_no_boolean_flags}
+parameters:
+  env:
+    values: ['nethack_challenge']
+
+  with_sol:
+    values: [False]
+  with_flat_intrinsic_rewards:
+    values: [False]
+
+  reward_scale:
+    values: [0.01]
+
+  reward_scale_score:
+    values: [1.0]
+  reward_scale_health:
+    values: [0.0]
+
+  character:
+    values: [
+  'mon-hum-neu-mal',
+  ]
+
+  rollout:
+    values: [256]
+  gamma:
+    min: 0.9
+    max: 0.999
+  value_loss_coeff:
+    values: [0.5]
+  exploration_loss_coeff:
+    values: [0.003]
+  reward_clip:
+    values: [10000.0]
+  model:
+    values: ['SymbolicGlyphNet']
+  map_input_type:
+    values: ['glyphs']
+  inv_input_type:
+    values: ["none"]
+  crop_dim:
+    value: 12
+  batch_size:
+    value: 32768
+  restart_behavior:
+    value: "restart"
+  train_dir:
+    value: "wandb_auto"
+  with_wandb:
+    value: "True"
+  wandb_dir:
+    value: "/checkpoint/michaelmatthews/wandb/"
+  num_workers:
+    value: 48
+  num_envs_per_worker:
+    value: 60
+  experiment_summaries_interval:
+    value: 100

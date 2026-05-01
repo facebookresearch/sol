@@ -1,0 +1,106 @@
+program: ../sf_examples/nethack/train_nethack.py
+entity: michaelmatthews
+project: sf2
+method: grid
+metric:
+  goal: maximize
+  name: reward/reward
+command:
+  - ${env}
+  - python3
+  - ${program}
+  - ${args_no_boolean_flags}
+parameters:
+  seed:
+    values: [0, 1, 2, 3, 4]
+  env:
+    value: "nethack_challenge"
+  character:
+    value: "val-dwa-law-fem"
+
+  with_gc:
+    value: "true"
+  gc_goals_path:
+    value: "/checkpoint/michaelmatthews/nle_messages/combined/Val-Dwa-Fem-Law/"
+  gc_hardcoded_goals:
+    value: "you the what to do in here want dust write,you the what to do in here want dust write el,you the what to do in here want dust write elb,you the what to do in here want dust write elbe,you the what to do in here want dust write elber,you the what to do in here want dust write elbere,you the what to do in here want dust write elberet,you the what to do in here want dust write elbereth"
+  gc_include_ext_reward:
+    value: "true"
+  gc_terminate_on_success:
+    value: "false"
+  gc_reward_coeff:
+    value: 50
+  gc_do_goals_timeout:
+    value: "true"
+  gc_goal_timeout_turns:
+    value: 256
+  gc_wait_for_timeout_on_goal_completion:
+    value: "true"
+  gc_sample_null_goal_prob:
+    value: 0.5
+  gc_goal_space_size:
+    value: 8
+
+  with_her:
+    value: "true"
+  her_burn_in:
+    value: 1000000000
+  her_relabel_traj_prob:
+    value: 0.9
+  her_prioritised_relabelling:
+    value: "true"
+  her_prioritised_traj_prob:
+    value: 0.9
+  her_loop_forwards:
+    value: "false"
+  her_priority_method:
+    values: ["count", "argmax"]
+
+  model:
+    value: "SymbolicGlyphTokenNet"
+  map_input_type:
+    value: "glyphs"
+  crop_dim:
+    value: 12
+  inv_input_type:
+    value: "tok"
+  tokenizer_name:
+    value: "dnd"
+
+  train_for_env_steps:
+    value: 50000000000
+  batch_size:
+    value: 32768
+  rollout:
+    value: 256
+  reward_scale:
+    value: 0.01
+  gamma:
+    value: 0.99
+  reward_clip:
+    value: 10000.0
+  with_vtrace:
+    value: "true"
+  recurrence:
+    value: 256
+  normalize_returns:
+    value: "false"
+  exploration_loss_coeff:
+    value: 0.003
+  value_loss_coeff:
+    value: 0.5
+
+  restart_behavior:
+    value: "restart"
+  train_dir:
+    value: "wandb_auto"
+  with_wandb:
+    value: "True"
+  wandb_dir:
+    value: "/checkpoint/michaelmatthews/wandb/"
+  num_workers:
+    value: 40
+  num_envs_per_worker:
+    value: 30
+  experiment_summaries_interval:
+    value: 100

@@ -1,0 +1,21 @@
+program: train_dnd_vf.py
+entity: michaelmatthews
+project: dnd
+method: random
+metric:
+  goal: minimize
+  name: train_loss
+command:
+  - ${env}
+  - python3
+  - ${program}
+  - ${args_no_boolean_flags}
+parameters:
+  lr:
+    values: [3e-7, 1e-7, 3e-8, 1e-8, 3e-9, 1e-9, 3e-10, 1e-10]
+  batch-size:
+    values: [16, 32, 64, 128]
+  embedding-dim:
+    values: [2, 4, 8]
+  max-token-length:
+    values: [8]
