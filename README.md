@@ -1,6 +1,6 @@
 # Scalable Option Learning 
 
-Official implementation of the SOL algorithm described in the paper [Scalable Option Learning in High-Throughput Environments](https://arxiv.org/abs/2509.00338) by [Mikael Henaff](mikaelhenaff.net), [Scott Fujimoto](https://scholar.google.com/citations?user=1Nk3WZoAAAAJ&hl=en), [Michael Matthews](https://www.mtmatthews.com/) and [Michael Rabbat](https://ai.meta.com/people/1148536089838617/michael-rabbat/).
+Official implementation of the SOL algorithm described in the paper [Scalable Option Learning in High-Throughput Environments](https://arxiv.org/abs/2509.00338) by [Mikael Henaff](mikaelhenaff.net), [Scott Fujimoto](https://scholar.google.com/citations?user=1Nk3WZoAAAAJ&hl=en), [Michael Matthews](https://www.mtmatthews.com/) and [Michael Rabbat](https://ai.meta.com/people/1148536089838617/michael-rabbat/) (ICML 2026).
 
 SOL is a highly scalable hierarchical RL algorithm which jointly learns option and controller policies from online interaction. It requires a set of reward functions (one for each option or sub-policy), and will simultaneously learn policies for each one as well as a controller which coordinates them in order to maximize the task reward. Scalability is achieved by representing both both high and low-level policies with a single neural network enabling batched learning, efficient advantage and return computations, and environment wrappers to track option execution. The clip below shows an agent trained on NetHack with options to maximize score and health. 
 
