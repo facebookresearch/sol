@@ -1,0 +1,62 @@
+env: ['craftium_open_world']
+
+max_episode_steps: [2000]
+
+with_sol: [True]
+
+sol_option_rewards: [
+'task_reward,up'
+]
+
+sol_controller_reward_scale: [0.1]
+sol_controller_exploration_scale: [3.0]
+sol_option_exploration_scales: ['1.0,3.0', '1.0,10.0']
+sol_num_option_steps: [-1]
+sol_bootstrap_on_option_switch: [True]
+sol_num_option_lengths: [4]
+sol_min_option_length: [16]
+
+sol_continuous_controller_min_for_task_reward: [1]
+sol_continuous_controller_min: [0]
+sol_continuous_controller_max: [1]
+sol_multi_num_coefs: [2]
+sol_multi_coef_spacing: ['linear']
+sol_multi_normalise_coefs: ['false']
+sol_controller_action_space: ['multidiscrete']
+
+
+use_clip_reward_wrapper: [True]
+reward_scale: [0.01]
+
+reward_scale_compass_directions: [0.01]
+reward_scale_elevation: [0.05]
+num_compass_rewards: [0]
+velocity_norm_clip: [300.0]
+velocity_penalty: [0.3]
+
+
+
+rollout: [256]
+value_loss_coeff: [0.5]
+exploration_loss_coeff: [0.003]
+learning_rate: [0.00025]
+gamma: [0.999]
+num_epochs: [1]
+ppo_clip_ratio: [0.1]
+env_frameskip: [4]
+num_envs_per_worker: [1]
+num_workers: [76]
+
+normalize_input: [True]
+normalize_input_keys: ['info_stats img']
+batch_size: [4096]
+train_for_env_steps: [500000000]
+worker_num_splits: [1]
+stats_avg: [20]
+experiment_summaries_interval: [20]
+
+# craftium specific
+fps_max: [500]
+sync_mode: [True]
+mt_wd: ["/checkpoint/mikaelhenaff/tmp05/luanti"]
+num_workers_fail_before_stop_training: [100000000000]
