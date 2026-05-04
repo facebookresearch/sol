@@ -51,13 +51,13 @@ The script can be run in dry mode to run locally, and also to submit jobs to a c
 To run single-threaded locally for debugging:
 
 ```
-python launch.py --expfile exp_configs/{sweep_file}.yaml --mode local --debug
+python launch.py --expfile exp_configs/{sweep_file}.yaml --dry --debug
 ```
 
 To run locally in multi-thread mode (for example, for speed tests):
 
 ```
-python launch.py --expfile exp_configs/{sweep_file}.yaml --mode local
+python launch.py --expfile exp_configs/{sweep_file}.yaml --dry
 ```
 
 To submit the full sweep to a Slurm cluster:
