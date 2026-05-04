@@ -1,6 +1,6 @@
 # Scalable Option Learning 
 
-Official implementation of SOL and related algorithms. SOL is a highly scalable hierarchical RL algorithm which jointly learns option and controller policies from online interaction, described in the following paper:
+Official implementation of Scalable Option Learning (SOL) and related algorithms. SOL is a highly scalable hierarchical RL algorithm which jointly learns option and controller policies from online interaction, described in the following paper:
 
 - [Scalable Option Learning in High-Throughput Environments](https://arxiv.org/abs/2509.00338) by [Mikael Henaff](mikaelhenaff.net), [Scott Fujimoto](https://scholar.google.com/citations?user=1Nk3WZoAAAAJ&hl=en), [Michael Matthews](https://www.mtmatthews.com/) and [Michael Rabbat](https://ai.meta.com/people/1148536089838617/michael-rabbat/) (ICML 2026).
 
@@ -39,7 +39,7 @@ pip install -r requirements.txt
 You will also need to compile the rewards computation code to Cython:
 
 ```
-cd sol
+cd sample_factory/algo/utils/cython
 python setup.py build_ext --inplace
 ```
 
