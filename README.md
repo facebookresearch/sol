@@ -68,7 +68,17 @@ python launch.py --expfile exp_configs/{sweep_file}.yaml --wandb_proj {wandb_pro
 
 The config files for the experiments in the paper can be found in the `exp_configs` folder.
 
-To use the original version of SOL with one option per reward function, pass the following argument: `--sol_controller_action_space discrete`. To use SOL-HBS, use:`--sol_controller_action_space multidiscrete`. 
+To use the original version of SOL with one option per reward function, pass the following argument:
+
+```
+--sol_controller_action_space discrete
+```
+
+To use SOL-HBS, use:
+
+```
+--sol_controller_action_space multidiscrete
+```
 
 
 ## Notes
