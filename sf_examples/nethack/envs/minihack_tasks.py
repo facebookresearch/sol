@@ -107,8 +107,8 @@ class MiniHackTreasureDash(MiniHack):
         self.staircase = StaircaseScore()
         
     def _reward_fn(self, last_observation, action, observation, end_status):
-        gold = self.gold.reward(self, last_observation, observation, end_status)
-        staircase = self.staircase.reward(self, last_observation, observation, end_status)
+        gold = self.gold.reward(self, last_observation, observation, {"end_status": end_status})
+        staircase = self.staircase.reward(self, last_observation, observation, {"end_status": end_status})
         return 20 * staircase + gold
 
 

@@ -143,31 +143,10 @@ class GoldScore(Score):
         if info["end_status"] != self.StepStatus.RUNNING:
             reward = 0.0
         
-
         self.score += reward
 
         return reward
 
-'''
-class GoldScore(Score):
-    def reward(self, env, last_observation, observation, info, training_info=None):
-        
-        old_blstats = last_observation[env._blstats_index]
-        old_gold = old_blstats[nethack.NLE_BL_GOLD]
-                
-        blstats = observation[env._blstats_index]
-        gold = blstats[nethack.NLE_BL_GOLD]
-
-        self.max_gold = max(old_gold, self.max_gold)
-        
-        reward = np.abs(gold - self.max_gold)        
-        self.score += reward
-        
-        if gold > self.max_gold:
-            self.max_gold = gold
-
-        return reward
-'''
 
 
 class EatingScore(Score):
