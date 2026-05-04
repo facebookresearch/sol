@@ -1,16 +1,24 @@
 # Scalable Option Learning 
 
-Official implementation of SOL and related algorithms described in the papers:
+Official implementation of SOL and related algorithms.
+
+
+SOL is a highly scalable hierarchical RL algorithm which jointly learns option and controller policies from online interaction, described in the following paper:
 
 - [Scalable Option Learning in High-Throughput Environments](https://arxiv.org/abs/2509.00338) by [Mikael Henaff](mikaelhenaff.net), [Scott Fujimoto](https://scholar.google.com/citations?user=1Nk3WZoAAAAJ&hl=en), [Michael Matthews](https://www.mtmatthews.com/) and [Michael Rabbat](https://ai.meta.com/people/1148536089838617/michael-rabbat/) (ICML 2026).
-- [Hierarchical Behavior Spaces](https://arxiv.org/abs/2604.24558) by [Michael Matthews](https://www.mtmatthews.com/), [Anssi Kanervisto](https://scholar.google.com/citations?view_op=list_works&hl=en&hl=en&user=iPimqbwAAAAJ), [Jakob Foerster](https://www.jakobfoerster.com/), [Pierluca D'Oro](https://proceduralia.github.io/), [Scott Fujimoto](https://scholar.google.com/citations?user=1Nk3WZoAAAAJ&hl=en) and [Mikael Henaff](mikaelhenaff.net).
 
-SOL is a highly scalable hierarchical RL algorithm which jointly learns option and controller policies from online interaction. It requires a set of reward functions (one for each option or sub-policy), and will simultaneously learn policies for each one as well as a controller which coordinates them in order to maximize the task reward. Scalability is achieved by representing both both high and low-level policies with a single neural network enabling batched learning, efficient advantage and return computations, and environment wrappers to track option execution. The clip below shows an agent trained on NetHack with options to maximize score and health. 
+It requires a set of reward functions (one for each option or sub-policy), and will simultaneously learn policies for each one as well as a controller which coordinates them in order to maximize the task reward. Scalability is achieved by representing both both high and low-level policies with a single neural network enabling batched learning, efficient advantage and return computations, and environment wrappers to track option execution. The clip below shows an agent trained on NetHack with options to maximize score and health. 
 
 
 <p align="center">
   <img src="assets/sol_trailer.gif" width="90%" alt="Description">
 </p>
+
+
+Hierarchical Behavior Spaces (HBS) parameterizes options by linear combinations over a set of reward functions. This effectively allows learning a number of options that is combinatorial in the number of reward functions, rather than having one option per reward. This repo implements a scalable version of HBS using the SOL framework. 
+
+- [Hierarchical Behavior Spaces](https://arxiv.org/abs/2604.24558) by [Michael Matthews](https://www.mtmatthews.com/), [Anssi Kanervisto](https://scholar.google.com/citations?view_op=list_works&hl=en&hl=en&user=iPimqbwAAAAJ), [Jakob Foerster](https://www.jakobfoerster.com/), [Pierluca D'Oro](https://proceduralia.github.io/), [Scott Fujimoto](https://scholar.google.com/citations?user=1Nk3WZoAAAAJ&hl=en) and [Mikael Henaff](mikaelhenaff.net).
+
 
 This repo also contains the updates to the NetHack Learning Environment described in the blog post:
 
