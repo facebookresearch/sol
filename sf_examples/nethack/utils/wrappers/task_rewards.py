@@ -49,7 +49,7 @@ class TaskRewardsInfoWrapper(gym.Wrapper, TrainingInfoInterface):
             KillsScore(),
             ProjectileScore(),
             ArmorScore(),
-            #PickupFoodScore(),
+            PickupFoodScore(),
             EnhanceSkillScore(), 
             DlvlUpScore(),
             DlvlDownScore(),
