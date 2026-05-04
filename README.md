@@ -1,9 +1,9 @@
 # Scalable Option Learning 
 
-Official implementation of the SOL and related algorithms described in the papers:
+Official implementation of SOL and related algorithms described in the papers:
 
 - [Scalable Option Learning in High-Throughput Environments](https://arxiv.org/abs/2509.00338) by [Mikael Henaff](mikaelhenaff.net), [Scott Fujimoto](https://scholar.google.com/citations?user=1Nk3WZoAAAAJ&hl=en), [Michael Matthews](https://www.mtmatthews.com/) and [Michael Rabbat](https://ai.meta.com/people/1148536089838617/michael-rabbat/) (ICML 2026).
-- [Hierarchical Behavior Spaces](https://arxiv.org/abs/2604.24558) by [Michael Matthews](https://www.mtmatthews.com/), Anssi Kanervisto, Jakob Foerster, Pierluca D'Oro, [Scott Fujimoto](https://scholar.google.com/citations?user=1Nk3WZoAAAAJ&hl=en) and [Mikael Henaff](mikaelhenaff.net).
+- [Hierarchical Behavior Spaces](https://arxiv.org/abs/2604.24558) by [Michael Matthews](https://www.mtmatthews.com/), [Anssi Kanervisto](https://scholar.google.com/citations?view_op=list_works&hl=en&hl=en&user=iPimqbwAAAAJ), [Jakob Foerster](https://www.jakobfoerster.com/), [Pierluca D'Oro](https://proceduralia.github.io/), [Scott Fujimoto](https://scholar.google.com/citations?user=1Nk3WZoAAAAJ&hl=en) and [Mikael Henaff](mikaelhenaff.net).
 
 SOL is a highly scalable hierarchical RL algorithm which jointly learns option and controller policies from online interaction. It requires a set of reward functions (one for each option or sub-policy), and will simultaneously learn policies for each one as well as a controller which coordinates them in order to maximize the task reward. Scalability is achieved by representing both both high and low-level policies with a single neural network enabling batched learning, efficient advantage and return computations, and environment wrappers to track option execution. The clip below shows an agent trained on NetHack with options to maximize score and health. 
 
@@ -12,9 +12,9 @@ SOL is a highly scalable hierarchical RL algorithm which jointly learns option a
   <img src="assets/sol_trailer.gif" width="90%" alt="Description">
 </p>
 
-This repo also contains the updates to the NLE described in the blog post:
+This repo also contains the updates to the NetHack Learning Environment described in the blog post:
 
-- [Revisiting The NetHack Learning Environment](https://iclr-blogposts.github.io/2026/blog/2026/revisiting-the-nle/) by [Michael Matthews](https://www.mtmatthews.com/), Anssi Kanervisto, Jakob Foerster, Pierluca D'Oro, [Scott Fujimoto](https://scholar.google.com/citations?user=1Nk3WZoAAAAJ&hl=en) and [Mikael Henaff](mikaelhenaff.net)
+- [Revisiting The NetHack Learning Environment](https://iclr-blogposts.github.io/2026/blog/2026/revisiting-the-nle/) by [Michael Matthews](https://www.mtmatthews.com/), [Anssi Kanervisto](https://scholar.google.com/citations?view_op=list_works&hl=en&hl=en&user=iPimqbwAAAAJ), [Jakob Foerster](https://www.jakobfoerster.com/), [Pierluca D'Oro](https://proceduralia.github.io/), [Scott Fujimoto](https://scholar.google.com/citations?user=1Nk3WZoAAAAJ&hl=en) and [Mikael Henaff](mikaelhenaff.net) (ICLR 2026 Blog Post)
 
 
 ## Installation
