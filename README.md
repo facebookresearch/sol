@@ -12,6 +12,9 @@ SOL is a highly scalable hierarchical RL algorithm which jointly learns option a
   <img src="assets/sol_trailer.gif" width="90%" alt="Description">
 </p>
 
+This repo also contains the updates to the NLE described in the blog post:
+
+- [Revisiting The NetHack Learning Environment](https://iclr-blogposts.github.io/2026/blog/2026/revisiting-the-nle/) by [Michael Matthews](https://www.mtmatthews.com/), Anssi Kanervisto, Jakob Foerster, Pierluca D'Oro, [Scott Fujimoto](https://scholar.google.com/citations?user=1Nk3WZoAAAAJ&hl=en) and [Mikael Henaff](mikaelhenaff.net)
 
 
 ## Installation
