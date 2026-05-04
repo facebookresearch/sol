@@ -831,7 +831,7 @@ def add_sol_args(p: ArgumentParser):
         "--sol_option_rewards",
         default='',
         type=str,
-        help="Name of the option rewards, should be separated by `+`, i.e. score_score+health_score",
+        help="Name of the option rewards, should be separated by `,`, i.e. `score,health`",
     )        
     p.add_argument(
         "--sol_controller_reward_key",
@@ -858,40 +858,28 @@ def add_sol_args(p: ArgumentParser):
         help="Additional scaling for the option policies exploration objective. This is in addition to exploration loss.",
     )    
     p.add_argument(
-        "--sol_iso_loss_coeff",
-        default=0.0,
-        type=float,
-        help="Coefficient of the Initiation Set Objective (ISO), which encourages controller to pick options with high option return.",
-    )    
-    p.add_argument(
         "--sol_corrected_logprobs",
         default=False,
         type=str2bool,
         help="",
     )    
     p.add_argument(
-        "--sol_iso_quantile",
-        default=0.1,
-        type=float,
-        help="Coefficient of the Initiation Set Objective (ISO) quantile, which chooses topk controller states to use as targets.",
-    )    
-    p.add_argument(
         "--sol_num_option_steps",
         default=-1,
         type=int,
-        help="Number of steps to execute each option for.",
+        help="Number of steps to execute each option for. Use -1 for adaptive option lengths, i.e., the controller chooses the number of option steps each time it's called from the set {2**i for i in range(sol_min_option_length, sol_min_option_length+sol_num_option_lengths)}",
     )
     p.add_argument(
         "--sol_num_option_lengths",
         default=8,
         type=int,
-        help="Number of option lengths to choose from.",
+        help="Number of option lengths to choose from (see above).",
     )
     p.add_argument(
         "--sol_min_option_length",
         default=1,
         type=int,
-        help="Minimum option length.",
+        help="Minimum option length (see above).",
     )
     p.add_argument(
         "--sol_options_to_add_llm_reward",
@@ -909,42 +897,42 @@ def add_sol_args(p: ArgumentParser):
         "--sol_controller_action_space",
         default="discrete",
         type=str,
-        help="discrete | multidiscrete | continuous"
+        help="discrete | multidiscrete | continuous. `Discrete` corresponds to having one option per reward function. `Multidiscrete` corresponds to hierarchical behavior spaces (HBS), where each option is a linear combination over reward functions. Continuous is experimental."
     )
     p.add_argument(
         "--sol_continuous_controller_min",
         default=0.0,
         type=float,
+        help="Minimum coefficient value output by HBS."
     )
     p.add_argument(
         "--sol_continuous_controller_max",
         default=1.0,
         type=float,
-    )
-    p.add_argument(
-        "--sol_ignore_last_controller_call_in_batch",
-        default=True,
-        type=str2bool,
+        help="Maximum coefficient value output by HBS."
     )
     p.add_argument(
         "--sol_multi_num_coefs",
         default=2,
         type=int,
+        help="Number of coefficient values for each reward that HBS can choose from. The total number of options is: num_rewards**sol_multi_num_coefs."
     )
     p.add_argument(
         "--sol_multi_coef_spacing",
         default="linear",
         type=str,
+        help="How to space the above coefficients. We use linear, but other schemes (e.g. log) can be used as well."
     )
     p.add_argument(
         "--sol_multi_normalise_coefs",
         default=False,
         type=str2bool,
+        help="Whether to normalize HBS coefficients over reward functions by their sum, so they always sum to one."
     )
     p.add_argument(
-        "--sil_coeff",
-        default=0.0,
-        type=float,
+        "--sol_ignore_last_controller_call_in_batch",
+        default=True,
+        type=str2bool,
     )
 
 

@@ -1072,10 +1072,6 @@ class Learner(Configurable):
             adv_std=adv_std,
             adv_mean=adv_mean,
         )
-
-        if self.cfg.sil_coeff > 0:
-            sil_loss = - (log_prob_actions * torch.clamp(targets - values.detach(), min=0)).sum() / log_prob_actions.numel()
-            policy_loss += self.cfg.sil_coeff * sil_loss
             
 
         return action_distribution, policy_loss, exploration_loss, kl_old, kl_loss, value_loss, loss_summaries
