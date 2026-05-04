@@ -315,8 +315,8 @@ def nethack_override_defaults(_env, parser):
     parser.set_defaults(
         use_record_episode_statistics=False,
         gamma=0.99,
-        num_workers=12,
-        num_envs_per_worker=2,
+        num_workers=48,
+        num_envs_per_worker=32,
         worker_num_splits=2,
         train_for_env_steps=2_000_000_000,
         nonlinearity="relu",
@@ -327,9 +327,9 @@ def nethack_override_defaults(_env, parser):
         policy_init_gain=1.0,
         adaptive_stddev=False,  # True only for continous action distributions
         reward_scale=1.0,
-        reward_clip=10.0,
-        batch_size=1024,
-        rollout=32,
+        reward_clip=10000.0,
+        batch_size=32768,
+        rollout=256,
         max_grad_norm=4,
         num_epochs=1,
         num_batches_per_epoch=1,  # can be used for increasing the batch_size for SGD
@@ -337,7 +337,7 @@ def nethack_override_defaults(_env, parser):
         ppo_clip_value=1.0,
         value_loss_coeff=0.5,
         exploration_loss="entropy",
-        exploration_loss_coeff=0.001,
+        exploration_loss_coeff=0.003,
         learning_rate=0.0001,
         gae_lambda=1.0,
         with_vtrace=True,  # in d&d they've used vtrace
