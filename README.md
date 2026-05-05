@@ -153,6 +153,26 @@ If you use this code, please cite the following:
       primaryClass={cs.LG},
       url={https://arxiv.org/abs/2509.00338}, 
 }
+
+@misc{matthews2026hierarchicalbehaviourspaces,
+      title={Hierarchical Behaviour Spaces}, 
+      author={Michael Tryfan Matthews and Anssi Kanervisto and Jakob Foerster and Pierluca D'Oro and Scott Fujimoto and Mikael Henaff},
+      year={2026},
+      eprint={2604.24558},
+      archivePrefix={arXiv},
+      primaryClass={cs.AI},
+      url={https://arxiv.org/abs/2604.24558}, 
+}
+
+@inproceedings{matthews2026revisitingthenethack,
+  author = {Matthews, Michael and D'Oro, Pierluca and Kanervisto, Anssi and Fujimoto, Scott and Foerster, Jakob and Henaff, Mikael},
+  title = {Revisiting The NetHack Learning Environment},
+  booktitle = {ICLR Blogposts 2026},
+  year = {2026},
+  date = {April 27, 2026},
+  note = {https://iclr-blogposts.github.io/2026/blog/2026/revisiting-the-nle/},
+  url  = {https://iclr-blogposts.github.io/2026/blog/2026/revisiting-the-nle/}
+}
 ```
 
 

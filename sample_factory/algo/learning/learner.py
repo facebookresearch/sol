@@ -594,7 +594,6 @@ class Learner(Configurable):
             option_scale = (option_indicators @ scales) / num_active
             options_entropy = options_entropy * option_scale
 
-        
         entropy = torch.mul(controller_indices, controller_entropy) + torch.mul(1 - controller_indices, options_entropy)
         
         entropy = masked_select(entropy, valids, num_invalids)
@@ -616,22 +615,7 @@ class Learner(Configurable):
             kl_prior = torch.zeros(kl_prior.shape)
         kl_prior = torch.clamp(kl_prior, max=30)
         kl_prior_loss = self.cfg.exploration_loss_coeff * kl_prior
-        return kl_prior_loss
-
-    def _compute_logprobs_sol(self, action_distribution, minibatch):
-        controller_action_dim = self.actor_critic.action_space.controller_action_space_index
-        policy_indicators = minibatch.normalized_obs['current_policy_vec'].long().cpu()
-                
-        list_of_action_batches = torch.split(minibatch.actions, action_distribution.action_lengths, dim=1)
-        log_probs = [d.log_prob(a) for d, a in zip(action_distribution.distributions, list_of_action_batches)]
-        log_probs = [lp.unsqueeze(dim=1) for lp in log_probs]
-        log_probs = torch.cat(log_probs, dim=1)
-        controller_log_probs = log_probs[:, controller_action_dim:].sum(dim=1)
-        option_log_probs = log_probs[:, :controller_action_dim].sum(dim=1)
-        controller_indices = policy_indicators[:, -1].to(self.device)
-        log_probs = controller_indices * controller_log_probs + (1 - controller_indices) * option_log_probs
-        return log_probs
-            
+        return kl_prior_loss            
 
     def _optimizer_lr(self):
         for param_group in self.optimizer.param_groups:
@@ -740,7 +724,6 @@ class Learner(Configurable):
             dtype=torch.float32,
             final_mask_value=-42.42
     ):
-        # policy_indicators = F.one_hot(policy_indexes, num_classes=num_policies)
         policy_indx = (policy_indicators[:, num_policies-1] == 1).long()
 
         num_policies = 2
@@ -765,13 +748,14 @@ class Learner(Configurable):
             current_policies = policy_indx[i::recurrence]
 
             if self.cfg.sol_ignore_last_controller_call_in_batch:
+                # ignore the last controller call, since the trajectory might be truncated
+                # and hence the controller reward incorrect.
                 is_current_policies_controller = current_policies == (num_policies - 1)
                 to_invalidate = is_current_policies_controller & (~seen_first_controller)
                 valids[i::recurrence] = ~to_invalidate
                 seen_first_controller |= is_current_policies_controller
 
             current_policies_one_hot = F.one_hot(current_policies, num_classes=num_policies).bool()
-            # current_policies_one_hot = F.one_hot(policy_indx[i::recurrence], num_classes = num_policies).bool()
 
             rewards = rewards_cpu[i::recurrence]
             curr_dones = dones_cpu[i::recurrence].bool()
@@ -923,10 +907,11 @@ class Learner(Configurable):
             # calculate policy tail outside of recurrent loop
             result = self.actor_critic.forward_tail(core_outputs, values_only=False, sample_actions=False)
             action_distribution = self.actor_critic.action_distribution()
-            if self.cfg.with_sol and self.cfg.sol_corrected_logprobs:
-                log_prob_actions = self._compute_logprobs_sol(action_distribution, mb)
-            else:
-                log_prob_actions = action_distribution.log_prob(mb.actions)
+            # TODO: for SOL, we could (should?) filter out the contributions of option/controller policies
+            # to the logprobs depending on which is active, but this requires deeper changes in action distribution 
+            # logic and it seems to work well enough as-is. Currently actions of inactive policies have no effect
+            # so this shouldn't introduce any bias, but might increase variance. 
+            log_prob_actions = action_distribution.log_prob(mb.actions)
             ratio = torch.exp(log_prob_actions - mb.log_prob_actions)  # pi / pi_old
 
             # super large/small values can cause numerical problems and are probably noise anyway
@@ -976,7 +961,6 @@ class Learner(Configurable):
                     ok = torch.all(rewards_cpu[policy_indicators[:, :, controller_indx] == 1]==controller_reward_placeholder).item()                    
                     assert ok, "Rewards of controller indices did not match expected placeholder. Ignore if you're using reward clipping."
 
-                    # policy_indx = (policy_indicators[:, :, controller_indx] == 1).nonzero()
                     rewards_cpu = compute_controller_reward_sums_cython(
                         obs_rewards.cpu().numpy(),
                         policy_indicators.argmax(dim=-1).numpy(),
@@ -985,12 +969,10 @@ class Learner(Configurable):
                     )
                     rewards_cpu = torch.from_numpy(rewards_cpu)
 
-
                     policy_indicators = policy_indicators.view(-1, num_policies)
                     rewards_cpu = rewards_cpu.view(-1)
                     
                     # now compute advantages and value targets for all policies
-
                     adv, vs, sol_valids = self._compute_vtrace_sol(
                         ratios_cpu,
                         values_cpu,
@@ -1004,9 +986,8 @@ class Learner(Configurable):
                         policy_indicators,
                         num_policies,
                     )
-
                     valids &= sol_valids.to(self.device)
-
+                    
                 else:
                     if self.cfg.llm_reward_type == "motif_legacy":
                         llm_rewards_cpu = self._compute_motif_rewards(mb)
