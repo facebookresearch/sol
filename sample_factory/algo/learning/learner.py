@@ -19,7 +19,11 @@ import torch.distributed as dist
 from torch.nn.parallel import DistributedDataParallel as DDP
 
 from sample_factory.algo.learning.rnn_utils import build_core_out_from_seq, build_rnn_inputs
-from sample_factory.algo.utils.action_distributions import get_action_distribution, is_continuous_action_space
+from sample_factory.algo.utils.action_distributions import (
+    get_action_distribution,
+    is_continuous_action_space,
+    sol_active_branch_log_probs,
+)
 from sample_factory.algo.utils.env_info import EnvInfo
 from sample_factory.algo.utils.misc import LEARNER_ENV_STEPS, POLICY_ID_KEY, STATS_KEY, TRAIN_STATS, memory_stats
 from sample_factory.algo.utils.model_sharing import ParameterServer
@@ -615,7 +619,14 @@ class Learner(Configurable):
             kl_prior = torch.zeros(kl_prior.shape)
         kl_prior = torch.clamp(kl_prior, max=30)
         kl_prior_loss = self.cfg.exploration_loss_coeff * kl_prior
-        return kl_prior_loss            
+        return kl_prior_loss
+
+    def _compute_logprobs_sol(self, action_distribution, minibatch):
+        controller_action_dim = self.actor_critic.action_space.controller_action_space_index
+        controller_indices = minibatch.normalized_obs['current_policy_vec'].long()[:, -1]
+        return sol_active_branch_log_probs(
+            action_distribution, minibatch.actions, controller_action_dim, controller_indices
+        )
 
     def _optimizer_lr(self):
         for param_group in self.optimizer.param_groups:
@@ -907,11 +918,11 @@ class Learner(Configurable):
             # calculate policy tail outside of recurrent loop
             result = self.actor_critic.forward_tail(core_outputs, values_only=False, sample_actions=False)
             action_distribution = self.actor_critic.action_distribution()
-            # TODO: for SOL, we could (should?) filter out the contributions of option/controller policies
-            # to the logprobs depending on which is active, but this requires deeper changes in action distribution 
-            # logic and it seems to work well enough as-is. Currently actions of inactive policies have no effect
-            # so this shouldn't introduce any bias, but might increase variance. 
-            log_prob_actions = action_distribution.log_prob(mb.actions)
+            if self.cfg.with_sol and self.cfg.sol_corrected_logprobs:
+                log_prob_actions = self._compute_logprobs_sol(action_distribution, mb)
+            else:
+                log_prob_actions = action_distribution.log_prob(mb.actions)
+
             ratio = torch.exp(log_prob_actions - mb.log_prob_actions)  # pi / pi_old
 
             # super large/small values can cause numerical problems and are probably noise anyway
