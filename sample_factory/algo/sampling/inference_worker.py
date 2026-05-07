@@ -31,7 +31,7 @@ from sample_factory.algo.utils.tensor_utils import cat_tensors, dict_of_lists_ca
 from sample_factory.algo.utils.torch_utils import inference_context, init_torch_runtime, synchronize
 from sample_factory.cfg.configurable import Configurable
 from sample_factory.utils.dicts import dict_of_lists_append_idx
-from sample_factory.utils.gpu_utils import cuda_envvars_for_policy, init_ddp
+from sample_factory.utils.gpu_utils import cuda_envvars_for_policy
 from sample_factory.utils.timing import Timing
 from sample_factory.utils.typing import Device, InitModelData, MpQueue, PolicyID
 from sample_factory.utils.utils import debug_log_every_n, init_file_logger, log
@@ -58,7 +58,7 @@ def init_inference_process(sf_context: SampleFactoryContext, worker: InferenceWo
     except psutil.AccessDenied:
         log.error("Low niceness requires sudo!")
 
-    if cfg.device == "gpu" and not cfg.use_ddp:
+    if cfg.device == "gpu":
         cuda_envvars_for_policy(worker.policy_id, "inference")
     init_torch_runtime(cfg)
 
@@ -85,9 +85,6 @@ class InferenceWorker(HeartbeatStoppableEventLoopObject, Configurable):
         self.worker_idx: int = worker_idx
 
         self.buffer_mgr = buffer_mgr
-
-        if self.cfg.use_ddp:
-            init_ddp()
 
         # shallow copy
         self.traj_tensors: Dict[Device, TensorDict] = copy.copy(buffer_mgr.traj_tensors_torch)

@@ -53,19 +53,6 @@ MUJOCO_ENVS = [
     MujocoSpec("mujoco_point_umaze_dense", "PointMaze_UMaze-v3", {"continuing_task": False, "reward_type": "dense"}),
     MujocoSpec("mujoco_point_gmaze_sparse", "PointMaze_UMaze-v3", {"continuing_task": False, "reward_type": "sparse", "maze_map": G_MAZE}),
     MujocoSpec("mujoco_point_gmaze_dense", "PointMaze_UMaze-v3", {"continuing_task": False, "reward_type": "dense", "maze_map": G_MAZE}),
-    MujocoSpec("mujoco_point_gmaze_dense2", "PointMaze_UMaze-v3", {"continuing_task": False, "reward_type": "dense", "terminate_when_unhealthy": True, "maze_map": G_MAZE}),
-    # AntMaze sparse
-    MujocoSpec("mujoco_ant_umaze_sparse", "AntMaze_UMaze-v5", {"continuing_task": False, "reward_type": "sparse"}),
-    MujocoSpec("mujoco_ant_medium_maze_sparse", "AntMaze_Medium-v5", {"continuing_task": False, "reward_type": "sparse"}),
-    MujocoSpec("mujoco_ant_large_maze_sparse", "AntMaze_Large-v5", {"continuing_task": False, "reward_type": "sparse"}),
-    # AntMaze dense
-    MujocoSpec("mujoco_ant_umaze_dense_fixed", "AntMaze_UMaze-v5", {"continuing_task": False, "reward_type": "dense", "maze_map": U_MAZE_FIXED}),
-    MujocoSpec("mujoco_ant_umaze_dense", "AntMaze_UMaze-v5", {"continuing_task": False, "reward_type": "dense"}),
-    MujocoSpec("mujoco_ant_umaze_dense2", "AntMaze_UMaze-v5", {"continuing_task": False, "reward_type": "dense", "terminate_when_unhealthy": True}),
-    MujocoSpec("mujoco_ant_gmaze_dense", "AntMaze_UMaze-v5", {"continuing_task": False, "reward_type": "dense", "maze_map": G_MAZE}),
-    MujocoSpec("mujoco_ant_gmaze_dense2", "AntMaze_UMaze-v5", {"continuing_task": False, "reward_type": "dense", "terminate_when_unhealthy": True, "maze_map": G_MAZE}),
-    MujocoSpec("mujoco_ant_medium_maze_dense", "AntMaze_Medium-v5", {"continuing_task": False, "reward_type": "dense"}),
-    MujocoSpec("mujoco_ant_large_maze_dense", "AntMaze_Large-v5", {"continuing_task": False, "reward_type": "dense"}),
 ]
 
 
@@ -121,7 +108,6 @@ def make_mujoco_env(env_name, cfg, _env_config, render_mode: Optional[str] = 'rg
             'controller': cfg.sol_controller_reward_scale,
         }
         base_policies = [r for r in cfg.sol_option_rewards.split(',')]
-        #base_policies = ['north', 'south', 'east', 'west', 'goal']
         controller_reward_key = 'goal'
         
         env = HierarchicalWrapper(
@@ -139,6 +125,5 @@ def make_mujoco_env(env_name, cfg, _env_config, render_mode: Optional[str] = 'rg
         survive_cost_weight = cfg.mujoco_survive_cost_weight,
         terminate_when_unhealthy = cfg.mujoco_terminate_when_unhealthy,
     )
-        
-        
+                
     return env

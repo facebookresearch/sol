@@ -101,7 +101,6 @@ class MazeTaskRewardsInfoWrapper(gym.Wrapper):
         new_extra_stats = {'success': int(info['success'])}
         new_extra_stats['total_x_velocity'] = self.total_x_velocity
         new_extra_stats['total_y_velocity'] = self.total_y_velocity
-        #new_extra_stats['final_goal_reward'] = info['intrinsic_rewards']['goal']
         return {**extra_stats, **new_extra_stats}
     
         

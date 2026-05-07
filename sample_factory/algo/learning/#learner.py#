@@ -34,6 +34,7 @@ from sample_factory.utils.typing import ActionDistribution, Config, InitModelDat
 from sample_factory.utils.utils import ensure_dir_exists, experiment_dir, log
 
 from sol.sol_vtrace import compute_vtrace_sol
+from sol.sol_controller_rewards import compute_reward_sums
 from sol.controller_reward_computation import compute_controller_reward_sums_cython
 
 
@@ -836,12 +837,8 @@ class Learner(Configurable):
             if self.cfg.with_sol:
                 for p in range(num_policies):
                     policy_mask = (policy_indx == p).to(self.device)
-                    if policy_mask.sum() > 1:
-                        adv_std, adv_mean = torch.std_mean(torch.masked_select(adv, valids & policy_mask))
-                        adv[policy_mask] = (adv[policy_mask] - adv_mean) / torch.clamp_min(adv_std, 1e-7)
-                    else:
-                        # if we don't handle this edge case, adv_std=nan which causes errors
-                        adv[policy_mask] = 0
+                    adv_std, adv_mean = torch.std_mean(torch.masked_select(adv, valids & policy_mask), correction=0)
+                    adv[policy_mask] = (adv[policy_mask] - adv_mean) / torch.clamp_min(adv_std, 1e-7)
             else:
                 adv_std, adv_mean = torch.std_mean(masked_select(adv, valids, num_invalids))
                 adv = (adv - adv_mean) / torch.clamp_min(adv_std, 1e-7)  # normalize advantage

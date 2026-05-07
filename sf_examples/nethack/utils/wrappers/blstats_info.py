@@ -15,8 +15,8 @@ class BlstatsInfoWrapper(gym.Wrapper):
         last_observation = tuple(a.copy() for a in self.env.unwrapped.last_observation)
         obs, reward, term, trun, info = self.env.step(action)
 
-        # if term or trun:
-        info["episode_extra_stats"] = self.add_more_stats(info, last_observation)
+        if term or trun:
+            info["episode_extra_stats"] = self.add_more_stats(info, last_observation)
 
         return obs, reward, term, trun, info
 

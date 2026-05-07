@@ -2,7 +2,6 @@ import os
 from typing import List, Optional
 
 import torch
-import traceback
 
 from sample_factory.utils.get_available_gpus import get_gpus_without_triggering_pytorch_cuda_initialization
 from sample_factory.utils.utils import log
@@ -20,30 +19,12 @@ def set_global_cuda_envvars(cfg):
     log.info(f"Environment var {CUDA_ENVVAR} is {os.environ[CUDA_ENVVAR]}")
 
 
-    
-def init_ddp():
-    env_dict = {
-        key: os.environ[key]
-        for key in ("MASTER_ADDR", "MASTER_PORT", "RANK", "WORLD_SIZE")
-    }
-    rank = int(env_dict['RANK'])
-    world_size = int(env_dict['WORLD_SIZE'])
-
-    print(f"[{os.getpid()}] Initializing process group with: {env_dict}")
-    torch.distributed.init_process_group(backend='nccl')
-    torch.cuda.set_device(rank)
-
-    return rank, world_size
-    
-
-
 def get_available_gpus() -> List[int]:
     """
     Returns indices of GPUs specified by CUDA_VISIBLE_DEVICES.
-    """    
-    orig_visible_devices = os.environ[f"{CUDA_ENVVAR}"]    
+    """
+    orig_visible_devices = os.environ[f"{CUDA_ENVVAR}"]
     available_gpus = [int(g.strip()) for g in orig_visible_devices.split(",") if g and not g.isspace()]
-    
     return available_gpus
 
 
@@ -72,13 +53,6 @@ def gpus_for_process(process_idx: int, num_gpus_per_process: int, gpu_mask: Opti
         index_mod_num_gpus = (first_gpu_idx + i) % num_gpus
         gpus_to_use.append(index_mod_num_gpus)
 
-
-    
-    rank = os.environ.get("RANK")
-    if rank is not None:
-        return [int(rank)]
-
-        
     log.debug(
         f"Using GPUs {gpus_to_use} for process {process_idx} (actually maps to GPUs {[available_gpus[g] for g in gpus_to_use]})"
     )
@@ -94,7 +68,7 @@ def set_gpus_for_process(process_idx, num_gpus_per_process, process_type, gpu_ma
     if not gpus_to_use:
         os.environ[CUDA_ENVVAR] = ""
         log.debug("Not using GPUs for %s process %d", process_type, process_idx)
-    else:    
+    else:
         available_gpus = get_available_gpus()
         cuda_devices_to_use = ",".join([str(available_gpus[g]) for g in gpus_to_use])
         os.environ[CUDA_ENVVAR] = cuda_devices_to_use
@@ -107,7 +81,7 @@ def set_gpus_for_process(process_idx, num_gpus_per_process, process_type, gpu_ma
             process_idx,
         )
         log.debug("Num visible devices: %r", torch.cuda.device_count())
-        
+
     return gpus_to_use
 
 

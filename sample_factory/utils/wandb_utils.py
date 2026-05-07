@@ -8,11 +8,10 @@ def init_wandb(cfg):
     Must call initialization of Wandb before summary writer is initialized, otherwise
     sync_tensorboard does not work.
     """
-    
+
     if not cfg.with_wandb:
         log.debug("Weights and Biases integration disabled")
-        return            
-        
+        return
 
     if "wandb_unique_id" not in cfg:
         # if we're going to restart the experiment, this will be saved to a json file

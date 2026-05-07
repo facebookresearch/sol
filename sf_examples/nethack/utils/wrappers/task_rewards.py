@@ -1,10 +1,7 @@
 import gymnasium as gym
 
-from sample_factory.envs.env_utils import RewardShapingInterface, TrainingInfoInterface
 from sf_examples.nethack.utils.task_rewards import (
-    BucScore,
     EatingScore,
-    ExperienceScore,
     GoldScore,
     ScoutScore,
     SokobanFillPitScore,
@@ -14,60 +11,27 @@ from sf_examples.nethack.utils.task_rewards import (
     HealthScore,
     ScoreScore,
     KillsScore,
-    ProjectileScore,
-    ArmorScore,
-    PickupFoodScore,
-    EnhanceSkillScore,
-    DlvlUpScore,
-    DlvlDownScore,
-    OracleScore,
-    PoisonResistanceScore,
-    SleepResistanceScore,
-    ColdResistanceScore,
-    FireResistanceScore,
-    IntrinsicsScore,
-    MessageScore, ExcaliburScore, ElberethScore, DenseElberethScore
+    ArmorScore
 )
 
 
-class TaskRewardsInfoWrapper(gym.Wrapper, TrainingInfoInterface):
-    def __init__(self, env: gym.Env, cfg):
+class TaskRewardsInfoWrapper(gym.Wrapper):
+    def __init__(self, env: gym.Env):
         super().__init__(env)
 
         self.tasks = [
             EatingScore(),
-            ExperienceScore(),
             GoldScore(),
             ScoutScore(),
-            OracleScore(),
-            #SokobanFillPitScore(),
+            SokobanFillPitScore(),
             SokobanReachedScore(),
             StaircasePetScore(),
             StaircaseScore(),
             HealthScore(),
             ScoreScore(),
             KillsScore(),
-            ProjectileScore(),
-            ArmorScore(),
-            PickupFoodScore(),
-            EnhanceSkillScore(), 
-            DlvlUpScore(),
-            DlvlDownScore(),
-            BucScore(),
-            PoisonResistanceScore(),
-            SleepResistanceScore(),
-            FireResistanceScore(),
-            ColdResistanceScore(),
-            IntrinsicsScore(),
-            MessageScore(cfg.positive_reward_messages, cfg.negative_reward_messages, cfg.messages_expend),
-            ExcaliburScore(),
-            #ElberethScore(),
-            #DenseElberethScore(cfg.dense_elbereth_reset_time),
+            ArmorScore(), 
         ]
-
-        self.training_info = {}
-
-
 
     def reset(self, **kwargs):
         obs = self.env.reset(**kwargs)
@@ -88,16 +52,13 @@ class TaskRewardsInfoWrapper(gym.Wrapper, TrainingInfoInterface):
         # we also record individual rewards in case we want to use as intrinsic rewards
         timestep_rewards = {}
         for task in self.tasks:
-           timestep_rewards[task.name] = task.reward(self.env.unwrapped, last_observation, observation, info,
-                                                     training_info=self.training_info)
+           timestep_rewards[task.name] = task.reward(self.env.unwrapped, last_observation, observation, end_status)
 
         if term or trun:
             info["episode_extra_stats"] = self.add_more_stats(info)
            
 
         info["intrinsic_rewards"] = timestep_rewards
-
-        #print(info["intrinsic_rewards"])
 
         return obs, reward, term, trun, info
 

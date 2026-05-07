@@ -22,7 +22,6 @@ from sample_factory.cfg.configurable import Configurable
 from sample_factory.utils.gpu_utils import cuda_envvars_for_policy
 from sample_factory.utils.typing import Config, PolicyID
 from sample_factory.utils.utils import init_file_logger, log
-from sample_factory.utils.gpu_utils import init_ddp
 
 
 def init_learner_process(sf_context: SampleFactoryContext, learner_worker: LearnerWorker):
@@ -42,7 +41,7 @@ def init_learner_process(sf_context: SampleFactoryContext, learner_worker: Learn
     except psutil.AccessDenied:
         log.error("Low niceness requires sudo!")
 
-    if cfg.device == "gpu" and not cfg.use_ddp:
+    if cfg.device == "gpu":
         cuda_envvars_for_policy(learner_worker.learner.policy_id, "learning")
 
     init_torch_runtime(cfg)
@@ -66,13 +65,8 @@ class LearnerWorker(HeartbeatStoppableEventLoopObject, Configurable):
         self.batcher: Batcher = batcher
         self.batcher_thread: Optional[Thread] = None
 
-        
-
         policy_versions_tensor: Tensor = buffer_mgr.policy_versions
         self.param_server = ParameterServer(policy_id, policy_versions_tensor, cfg.serial_mode)
-
-
-        
         self.learner: Learner = Learner(cfg, env_info, policy_versions_tensor, policy_id, self.param_server)
 
         # total number of full training iterations (potentially multiple minibatches/epochs per iteration)
@@ -80,9 +74,6 @@ class LearnerWorker(HeartbeatStoppableEventLoopObject, Configurable):
 
         self.cache_cleanup_timer = Timer(self.event_loop, 30)
         self.cache_cleanup_timer.timeout.connect(self._cleanup_cache)
-
-
-        
 
     @signal
     def initialized(self): ...

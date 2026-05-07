@@ -4,10 +4,8 @@ train_for_env_steps: [100000000]
 
 
 with_sol: [True]
-sol_option_rewards: [
-'staircase,gold',
-'task_reward,task_reward2'
-]
+#sol_option_rewards: ['staircase,gold,scout,health','staircase,staircase2,gold,gold2','staircase,staircase2,staircase3,gold, gold2, gold3','staircase,staircase2,staircase3,staircase4,gold,gold2,gold3,gold4','staircase,staircase2,staircase3,staircase4,staircase5,gold,gold2,gold3,gold4,gold5']
+sol_option_rewards: ['staircase,gold,scout,health','staircase,staircase2,staircase3,gold,gold2,gold3']
 sol_controller_reward_key: ['task_reward']
 sol_controller_reward_scale: [0.001]
 sol_controller_exploration_scale: [1.0]
