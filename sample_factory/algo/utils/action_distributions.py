@@ -79,7 +79,7 @@ def sol_active_branch_log_probs(
     """Sum tuple log probs over only the active SOL branch.
 
     On controller timesteps (controller_indices == 1) sum the components from
-    controller_action_dim onward; on option timesteps sum the components before it.
+    controller_action_dim onward, on option timesteps sum the components before it.
     """
     list_of_action_batches = torch.split(actions, distribution.action_lengths, dim=1)
     log_probs = [d.log_prob(a) for d, a in zip(distribution.distributions, list_of_action_batches)]
