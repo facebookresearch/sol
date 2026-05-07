@@ -8,6 +8,8 @@ import torch
 from torch import Tensor
 import cv2
 import pprint
+import gnuplotlib as gp
+import time
 
 from sample_factory.algo.learning.learner import Learner
 from sample_factory.algo.sampling.batched_sampling import preprocess_actions
@@ -24,86 +26,6 @@ from sample_factory.model.model_utils import get_rnn_size
 from sample_factory.utils.attr_dict import AttrDict
 from sample_factory.utils.typing import Config, StatusCode
 from sample_factory.utils.utils import debug_log_every_n, experiment_dir, log
-
-try:
-    import gnuplotlib as gp
-except:
-    print('Skipping gnuplotlib')
-
-
-
-
-class NLETrajectory:
-
-    def __init__(self, env):
-        self.keys = ['actions', 'score', 'hp', 'max_hp', 'xlvl', 'dlvl', 'time', 'gold', 'message', 'dnum', 'dlevel']
-        self.traj = {key: [] for key in self.keys}
-        self.env = env
-        self.landmarks_visited = {
-            'minetown': 0, 
-            'oracle': 0,
-        }
-            
-
-    def _check_minetown(self, obs):
-        glyphs = obs['glyphs'].squeeze()
-        if torch.any(glyphs == 278).item() or torch.any(glyphs == 279).item():
-            self.landmarks_visited['minetown'] = 1
-
-    def _check_oracle(self, obs):
-        glyphs = obs['glyphs'].squeeze()
-        chars = obs['tty_chars'].squeeze()[:-2, :]
-        colors = obs['tty_colors'].squeeze()[:-2, :]
-        C = chars == ord('C')
-        if C.sum().item() >= 3:
-            C_colors = colors[C]
-            if torch.all(C_colors == 15):
-                self.landmarks_visited['oracle'] = 1
-        
-
-    def add(self, obs, actions):
-        blstats = obs['blstats'].cpu().squeeze()
-
-        self._check_oracle(obs)
-        self._check_minetown(obs)
-        
-        step = {
-            'actions': actions[0],
-            'score': blstats[9].item(),
-            'hp': blstats[10].item(),
-            'max_hp': blstats[11].item(),
-            'xlvl': blstats[18].item(),
-            'dlvl': blstats[12].item(),
-            'time': blstats[20].item(),
-            'gold': blstats[13].item(),
-            'dnum': blstats[23].item(),
-            'dlevel': blstats[24].item(),
-            'message': bytes(obs['message'].cpu().numpy().astype(np.int8)).decode('latin-1').replace('\x00', ''),
-        }
-
-        for k, v in step.items():
-            self.traj[k].append(v)
-
-    def print_summary(self):
-        
-        env_actions = np.stack(self.traj['actions'])[:, 0]
-        action_counts = {repr(self.env.unwrapped.actions[a]): np.sum(env_actions==a) for a in np.unique(env_actions)}
-        print(f"=== Action counts ===")
-        for item in sorted(action_counts.items(), key=lambda item: item[1]):
-            print(f"{item[1]:4d}     :     {item[0]}")
-
-        try:
-            gp.plot(np.array(self.traj['dlvl']), xlabel='Time', ylabel='Dlvl', terminal='dumb 100 30 ansi')
-            gp.plot(np.array(self.traj['hp']), xlabel='Time', ylabel='HP', terminal='dumb 100 30 ansi')
-        except:
-            print("Skipping gnuplot plots")
-        import pdb; pdb.set_trace()
-        
-
-                
-
-        
-
 
 
 def visualize_policy_inputs(normalized_obs: Dict[str, Tensor]) -> None:
@@ -146,22 +68,14 @@ def render_frame(cfg, env, video_frames, num_episodes, last_render_start, text=N
         need_video_frame = len(video_frames) < cfg.video_frames or cfg.video_frames < 0 and num_episodes == 0
         if need_video_frame:
             frame = env.render()
-
-
-            # Scale up the frame to make text appear smaller
-            scale_factor = 4.0  # Adjust this value as needed
-            H, W = frame.shape[:2]
-            new_W, new_H = int(W * scale_factor), int(H * scale_factor)
-            frame = cv2.resize(frame, (new_W, new_H), interpolation=cv2.INTER_LINEAR)
-            
             if frame is not None:
                 frame = frame.copy()
                 if text is not None:
                     H, W = frame.shape[:2]
-                    org = (int(H*0.8), int(W*0.8))
-                    font_scale = 0.5
+                    org = (int(H*0.2), int(W*0.8))
+                    font_scale = 3
                     color = (255, 0, 0)
-                    thickness = 1
+                    thickness = 2
                     cv2.putText(frame, text, org, cv2.FONT_HERSHEY_SIMPLEX, font_scale, color, thickness, cv2.LINE_AA)
 
                 video_frames.append(frame.copy())
@@ -196,14 +110,12 @@ def load_state_dict(cfg: Config, actor_critic: ActorCritic, device: torch.device
     checkpoints = Learner.get_checkpoints(Learner.checkpoint_dir(cfg, policy_id), f"{name_prefix}_*")
     checkpoint_dict = Learner.load_checkpoint(checkpoints, device)
     if checkpoint_dict:
-        state_dict = checkpoint_dict["model"]
-        state_dict = {key.replace('module.', ''): val for key, val in state_dict.items()}
-        actor_critic.load_state_dict(state_dict)
+        actor_critic.load_state_dict(checkpoint_dict["model"])
     else:
         raise RuntimeError("Could not load checkpoint")
 
 
-def enjoy(cfg: Config, render_mode="human") -> Tuple[StatusCode, float]:
+def enjoy(cfg: Config) -> Tuple[StatusCode, float]:
     verbose = False
 
     #cfg = load_from_checkpoint(cfg)
@@ -218,10 +130,11 @@ def enjoy(cfg: Config, render_mode="human") -> Tuple[StatusCode, float]:
 
     cfg.num_envs = 1
 
+    render_mode = "human"
     if cfg.save_video:
         render_mode = "rgb_array"
-#    elif cfg.no_render:
-#        render_mode = None
+    elif cfg.no_render:
+        render_mode = None
 
     env = make_env(cfg, render_mode=render_mode)
     env_info = extract_env_info(env, cfg)
@@ -250,13 +163,7 @@ def enjoy(cfg: Config, render_mode="human") -> Tuple[StatusCode, float]:
     reward_list = []
     action_list = []
     obs_list = []
-
-
-    if 'nethack' in str(env.unwrapped).lower():
-        current_traj = NLETrajectory(env)
-        landmarks_list = []
-
-    
+    obs_list2 = []
 
     obs, infos = env.reset()
     action_mask = obs.pop("action_mask").to(device) if "action_mask" in obs else None
@@ -268,25 +175,8 @@ def enjoy(cfg: Config, render_mode="human") -> Tuple[StatusCode, float]:
     policy_indices = []
     num_episodes = 0
 
-    steps_to_skip = 1
-
     with torch.no_grad():
         while not max_frames_reached(num_frames):
-
-            '''
-            if steps_to_skip <= 0:
-                try:
-                    inp = input()
-                    if inp == "q":
-                        raise Exception
-                    steps_to_skip = int(inp)
-                except ValueError:
-                    # print("err")
-                    steps_to_skip = 0
-            else:
-                steps_to_skip -= 1
-            '''
-
             normalized_obs = prepare_and_normalize_obs(actor_critic, obs)
 
             if not cfg.no_render:
@@ -308,57 +198,40 @@ def enjoy(cfg: Config, render_mode="human") -> Tuple[StatusCode, float]:
             # TODO:one of the wrappers does action=action[0], which messes up hierarchical agents
             # need to find cleaner fix
             if cfg.with_sol:
-                env_ = env
-                while not hasattr(env_, 'policies'):
-                    env_ = env_.env
-                policies = env_.policies
-                policy_indicators = np.array(normalized_obs['current_policy_vec'][0].cpu())
-                is_controller = policy_indicators[-1] == 1
-
-                if is_controller:
-                    text_on_img = "controller"
-                else:
-                    text_on_img_lines = []
-                    for policy_index, policy_name in enumerate(policies[:-1]):
-                        policy_name = policy_name
-                        text_on_img_lines.append(f"{policy_name.replace('_score', '')}: {policy_indicators[policy_index]}")
-                    text_on_img = ", ".join(text_on_img_lines)
-
-                #print(text_on_img)
+                policies = env.env.env.policies
+                policy_indx = normalized_obs['current_policy'].int().item()
+                text_on_img = policies[policy_indx]
+                if text_on_img == 'controller':
+                    num_option_steps = 2 ** actions[0][2]
+                    next_policy = policies[actions[0][1]]
+                    print(f"\n\nExecuting policy {next_policy} for {num_option_steps} steps\n\n")
+                    time.sleep(2)
+                #text_on_img = str(actions[-1].item())
+                actions = actions.squeeze()
+                actions = [actions]
             else:
                 text_on_img = None
 
             if 'nethack' in str(env.unwrapped).lower():
 
-                if isinstance(actions, np.ndarray) and len(actions.shape) == 1:
-                    current_base_action = repr(env.unwrapped.actions[actions[0]])
-                elif len(actions[0]) == 1:
+                if len(actions[0]) == 1:
+                #if len(actions) == 1:
                     current_base_action = repr(env.unwrapped.actions[actions[0]])
                 else:
+                    #current_base_action = repr(env.unwrapped.actions[actions[0]])
                     current_base_action = repr(env.unwrapped.actions[actions[0][0]])
-
-                if cfg.with_sol:
-                    if is_controller:
-                        option_name = policies[actions[0][-2]]
-                        option_length = 2 ** actions[0][-1]
-                        #print(f"Executing option {option_name} for {option_length} steps")
-                        #import pdb; pdb.set_trace()
-                
                 action_list.append(current_base_action)
-                try:
-                    obs_list.append(bytes(obs['message'].cpu().numpy().astype(np.int8)).decode('latin-1').replace('\x00', ''))
-                except UnicodeDecodeError:
-                    print("Invalid latin-1")
-                    #print("Invalid utf-8")
+                obs_list.append(bytes(obs['message'].cpu().numpy().astype(np.int8)).decode('utf-8').replace('\x00', ''))
+                obs_list2.append(obs['blstats'].cpu().numpy())
                 
+
             rnn_states = policy_outputs["new_rnn_states"]
 
             for _ in range(render_action_repeat):
                 last_render_start = render_frame(cfg, env, video_frames, num_episodes, last_render_start, text = text_on_img)
 
-                if 'nethack' in str(env.unwrapped).lower():
-                    current_traj.add(obs, actions)
-                    
+                #import pdb; pdb.set_trace()
+                #actions = actions[0]
                 obs, rew, terminated, truncated, infos = env.step(actions)
                 action_mask = obs.pop("action_mask").to(device) if "action_mask" in obs else None
                 dones = make_dones(terminated, truncated)
@@ -368,8 +241,6 @@ def enjoy(cfg: Config, render_mode="human") -> Tuple[StatusCode, float]:
                     episode_reward = rew.float().clone()
                 else:
                     episode_reward += rew.float()
-                print(f"Score: {float(episode_reward):4.4f} | Reward: {float(rew):2.4f} | " + text_on_img if text_on_img is not None else "")
-
 
                 num_frames += 1
                 if num_frames % 100 == 0:
@@ -407,13 +278,12 @@ def enjoy(cfg: Config, render_mode="human") -> Tuple[StatusCode, float]:
                             num_episodes += 1
                             reward_list.append(true_objective)
 
-                        # action_counts = {action: len([a for a in action_list if a == action]) for action in set(action_list)}
-                        # pprint.pp(action_counts)
-                        # obs_counts = {obs: len([o for o in obs_list if o == obs]) for obs in set(obs_list)}
-                        # pprint.pp(obs_counts)
-                        #
-                        #import pdb; pdb.set_trace()
-                        #input("Episode terminated")
+                        action_counts = {action: len([a for a in action_list if a == action]) for action in set(action_list)}
+                        pprint.pp(action_counts)
+                        obs_counts = {obs: len([o for o in obs_list if o == obs]) for obs in set(obs_list)}
+                        pprint.pp(obs_counts)
+                        
+                        import pdb; pdb.set_trace()
 
                 # if episode terminated synchronously for all agents, pause a bit before starting a new one
                 if all(dones):
@@ -445,25 +315,11 @@ def enjoy(cfg: Config, render_mode="human") -> Tuple[StatusCode, float]:
                         np.mean([np.mean(true_objectives[i]) for i in range(env.num_agents)]),
                     )
 
-
-                    if 'nethack' in str(env.unwrapped).lower():
-                        landmarks = {k: v for k,v in infos[0]['episode_extra_stats'].items() if 'visited' in k}
-                        landmarks['oracle'] = current_traj.landmarks_visited['oracle'] or infos[0]['intrinsic_rewards']['oracle_score']
-                        landmarks['minetown'] = landmarks['visited_minetown'] or current_traj.landmarks_visited['minetown']
-                        landmarks_list.append(landmarks)
-                        current_traj.print_summary()
-                        current_traj = NLETrajectory(env)
-                    
-
-
                 # VizDoom multiplayer stuff
                 # for player in [1, 2, 3, 4, 5, 6, 7, 8]:
                 #     key = f'PLAYER{player}_FRAGCOUNT'
                 #     if key in infos[0]:
                 #         log.debug('Score for player %d: %r', player, infos[0][key])
-
-
-            #print(current_base_action)
 
             if num_episodes >= cfg.max_num_episodes:
                 break

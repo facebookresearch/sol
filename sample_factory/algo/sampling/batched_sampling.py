@@ -188,18 +188,18 @@ class BatchedVectorEnvRunner(VectorEnvRunner):
 
         self.last_obs, info = self.vec_env.reset()  # anything we need to do with info? Currently we ignore it
 
-        self.last_rnn_state = torch.zeros_like(self.traj_tensors["rnn_states"][0 : self.vec_env.unwrapped.num_agents, 0])
+        self.last_rnn_state = torch.zeros_like(self.traj_tensors["rnn_states"][0 : self.vec_env.num_agents, 0])
 
         # we assume that all data will be on the same device
         self.device = self.last_rnn_state.device
 
-        self.policy_id_buffer = torch.empty_like(self.traj_tensors["policy_id"][0 : self.vec_env.unwrapped.num_agents, 0])
+        self.policy_id_buffer = torch.empty_like(self.traj_tensors["policy_id"][0 : self.vec_env.num_agents, 0])
         self.policy_id_buffer[:] = self.policy_id
 
         assert self.rollout_step == 0
 
-        self.curr_episode_reward = torch.zeros(self.vec_env.unwrapped.num_agents)
-        self.curr_episode_len = torch.zeros(self.vec_env.unwrapped.num_agents, dtype=torch.int32)
+        self.curr_episode_reward = torch.zeros(self.vec_env.num_agents)
+        self.curr_episode_len = torch.zeros(self.vec_env.num_agents, dtype=torch.int32)
         self.min_raw_rewards = torch.empty_like(self.curr_episode_reward).fill_(np.inf)
         self.max_raw_rewards = torch.empty_like(self.curr_episode_reward).fill_(-np.inf)
 
@@ -242,7 +242,7 @@ class BatchedVectorEnvRunner(VectorEnvRunner):
                 if isinstance(value, Tensor):
                     if value.numel() == 1:
                         stats[key_str] = value.item()
-                    elif len(value.shape) >= 1 and len(value) == self.vec_env.unwrapped.num_agents:
+                    elif len(value.shape) >= 1 and len(value) == self.vec_env.num_agents:
                         # saving value for all agents who finished the episode
                         stats[key_str] = value[finished]
                     else:
@@ -350,7 +350,7 @@ class BatchedVectorEnvRunner(VectorEnvRunner):
 
                 if self.training_info[self.policy_id] is not None:
                     reward_shaping = self.training_info[self.policy_id].get("reward_shaping", None)
-                    set_reward_shaping(self.vec_env, reward_shaping, slice(0, self.vec_env.unwrapped.num_agents))
+                    set_reward_shaping(self.vec_env, reward_shaping, slice(0, self.vec_env.num_agents))
                     set_training_info(self.env_training_info_interface, self.training_info[self.policy_id])
 
         self.env_step_ready = True

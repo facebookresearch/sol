@@ -4,7 +4,6 @@ import json
 import math
 import shutil
 import time
-import os
 from collections import OrderedDict, deque
 from os.path import isdir, join
 from typing import Any, Callable, Deque, Dict, List, Optional, Tuple
@@ -134,8 +133,7 @@ class Runner(EventLoopObject, Configurable):
 
         self._handle_restart()
 
-        if self.cfg.train_dir != "wandb_auto":
-            init_wandb(self.cfg)  # should be done before writers are initialized
+        init_wandb(self.cfg)  # should be done before writers are initialized
 
         self.writers: Dict[int, SummaryWriter] = dict()
         for policy_id in range(self.cfg.num_policies):
@@ -184,12 +182,6 @@ class Runner(EventLoopObject, Configurable):
 
         self.components_to_stop: List[EventLoopObject] = []
         self.component_profiles: Dict[str, Timing] = dict()
-
-        if self.cfg.use_ddp:
-            self.world_size = int(os.environ.get("WORLD_SIZE"))
-        else:
-            self.world_size = 1
-        
 
     # signals emitted by the runner
     @signal
@@ -259,7 +251,6 @@ class Runner(EventLoopObject, Configurable):
     @staticmethod
     def _learner_steps_handler(runner: Runner, msg: Dict, policy_id: PolicyID) -> None:
         env_steps: int = msg[LEARNER_ENV_STEPS]
-        
         if policy_id in runner.env_steps:
             delta = env_steps - runner.env_steps[policy_id]
             runner.total_env_steps_since_resume += delta
@@ -297,18 +288,15 @@ class Runner(EventLoopObject, Configurable):
             if key in train_stats:
                 runner.policy_lag[policy_id][key] = train_stats[key]
 
-    def _get_perf_stats(self):        
+    def _get_perf_stats(self):
         # total env steps simulated across all policies
-
-        # TODO: there is something weird: although we scale by world_size in learner,
-        # if we don't also scale here the numbers don't match up. Fix this at some point. 
         fps_stats = []
         for avg_interval in self.avg_stats_intervals:
             fps_for_interval = math.nan
             if len(self.fps_stats) > 1:
                 t1, x1 = self.fps_stats[max(0, len(self.fps_stats) - 1 - avg_interval)]
                 t2, x2 = self.fps_stats[-1]
-                fps_for_interval = ((x2 - x1) / (t2 - t1)) * self.world_size
+                fps_for_interval = (x2 - x1) / (t2 - t1)
 
             fps_stats.append(fps_for_interval)
 
@@ -319,7 +307,7 @@ class Runner(EventLoopObject, Configurable):
             if len(self.throughput_stats[policy_id]) > 1:
                 t1, x1 = self.throughput_stats[policy_id][0]
                 t2, x2 = self.throughput_stats[policy_id][-1]
-                sample_throughput[policy_id] = ((x2 - x1) / (t2 - t1)) * self.world_size
+                sample_throughput[policy_id] = (x2 - x1) / (t2 - t1)
 
         return fps_stats, sample_throughput
 
@@ -385,7 +373,6 @@ class Runner(EventLoopObject, Configurable):
 
         default_policy = 0
         for policy_id, env_steps in self.env_steps.items():
-                        
             writer = self.writers[policy_id]
             if policy_id == default_policy:
                 if not math.isnan(fps):
@@ -406,7 +393,7 @@ class Runner(EventLoopObject, Configurable):
                 if len(stat[policy_id]) >= stat[policy_id].maxlen or (
                     len(stat[policy_id]) > 10 and self.total_train_seconds > 300
                 ):
-                    stat_value = np.nanmean(stat[policy_id])
+                    stat_value = np.mean(stat[policy_id])
 
                     if "/" in key:
                         # custom summaries have their own sections in tensorboard
@@ -432,8 +419,6 @@ class Runner(EventLoopObject, Configurable):
 
             self._observers_call(AlgoObserver.extra_summaries, self, policy_id, writer, env_steps)
 
-
-        # Log to tensorboard
         for w in self.writers.values():
             w.flush()
 
@@ -619,14 +604,11 @@ class Runner(EventLoopObject, Configurable):
             wait_time = time.time() - self.start_time
             log.debug(f"Components not started: {', '.join(none_list)}, {wait_time=:.1f} seconds")
             if wait_time > 3 * self.heartbeat_report_sec:
-                log.error(f"Components take too long to start: {', '.join(none_list)}. It took {wait_time}, but max limit was {3 * self.heartbeat_report_sec}. Aborting the experiment!\n\n\n")
+                log.error(f"Components take too long to start: {', '.join(none_list)}. Aborting the experiment!\n\n\n")
                 self._stop_training(failed=True)
 
         if len(comp_list) > 0:
             log.error(f"No heartbeat for components: {', '.join(comp_list)}")
-            if len(comp_list) >= self.cfg.num_workers_fail_before_stop_training:
-                log.error(f"Stopping training due to dead workers.")
-                self._stop_training(failed=False)
 
         if len(type_list) > 0:
             log.error(f"Stopping training due to lack of heartbeats from {', '.join(type_list)}")

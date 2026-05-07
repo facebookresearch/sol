@@ -3,7 +3,6 @@ Utilities for sharing model parameters between components.
 """
 
 import sys
-import os
 from typing import Optional
 
 import torch
@@ -13,10 +12,6 @@ from sample_factory.algo.utils.multiprocessing_utils import get_lock, get_mp_ctx
 from sample_factory.model.actor_critic import create_actor_critic
 from sample_factory.utils.timing import Timing
 from sample_factory.utils.utils import log
-
-import torch.distributed as dist
-from torch.nn.parallel import DistributedDataParallel as DDP
-
 
 
 class ParameterServer:
@@ -122,11 +117,6 @@ class ParameterClientAsync(ParameterClient):
         super().on_weights_initialized(state_dict, device, policy_version)
 
         self._init_local_copy(device, self.cfg, self.env_info.obs_space, self.env_info.action_space)
-
-        if self.cfg.use_ddp:
-            # DDP-wrapped model in learner worker has '.module.' inserted in weight names
-            # so remove that when copying over
-            state_dict = {key.replace('module.', ''): val for key, val in state_dict.items()}
 
         with self._policy_lock:
             if state_dict is None:

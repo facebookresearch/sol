@@ -1,32 +1,25 @@
 from typing import Optional
 
 import gymnasium as gym
+import nle_patched.nle as nle  # noqa: F401
+import nle_patched.nle.nethack as nethack
 
-from sample_factory.utils.utils import is_module_available, log
-
-# look for a patched NLE without lunar phases and such, otherwise use default
-try:
-    import nle_patched.nle as nle
-    import nle_patched.nle.nethack as nethack
-    log.info("Using patched NLE")
-except ImportError:
-    log.info("Could not find patched NLE, using default NLE instead")
-    import nle
-    import nle.nethack as nethack
-    
+from sample_factory.utils.utils import is_module_available
 from sf_examples.nethack.utils.wrappers import (
     BlstatsInfoWrapper,
     NoProgressTimeout,
     PrevActionsWrapper,
     MessageCountsWrapper, 
     TaskRewardsInfoWrapper,
+    InventorySelectionWrapper,
+    NLETokenizerWrapper, 
     TileTTY,
 )
 from sf_examples.nethack.envs import (
     NetHackScoreFixedEat
 )
 
-from sol.hierarchical import HierarchicalWrapper
+from sample_factory.algo.utils.hierarchical import HierarchicalWrapper
 from sample_factory.algo.utils.flat_intrinsic_rewards import FlatIntrinsicRewardsWrapper
 
 def nethack_available():
@@ -51,6 +44,10 @@ NETHACK_ENVS = [
     NetHackSpec("nethack_challenge", "NetHackChallenge-v0"),
     NetHackSpec("minihack_zombie_horde", "MiniHack-ZombieHorde-v0"),
     NetHackSpec("minihack_treasure_dash", "MiniHack-TreasureDash-v0"),
+    NetHackSpec("minihack_armor_inv", "MiniHack-ArmorInv-v0"),
+    NetHackSpec("minihack_armor_uncursed", "MiniHack-ArmorUncursed-v0"),
+    NetHackSpec("minihack_armor_identify", "MiniHack-ArmorIdentify-v0"),
+    NetHackSpec("minihack_armor_enchant", "MiniHack-ArmorEnchant-v0"),
 ]
 
 
@@ -80,15 +77,20 @@ def make_nethack_env(env_name, cfg, _env_config=None, render_mode: Optional[str]
             "glyphs",
         )
 
-    # ALSO AVAILABLE (OFF for speed)
-    # "specials",
-    # "colors",
-    # "chars",
-    # "glyphs",
-    # "inv_glyphs",
-    # "inv_strs",
-    # "inv_letters",
-    # "inv_oclasses",
+    if cfg.inv_input_type != "none":
+        observation_keys += (
+            "inv_strs",
+            "inv_letters",
+        )
+        # ALSO AVAILABLE (OFF for speed)
+        # "specials",
+        # "colors",
+        # "chars",
+        # "glyphs",
+        # "inv_glyphs",
+        # "inv_strs",
+        # "inv_letters",
+        # "inv_oclasses",
 
     if render_mode is not None:
         if render_mode == "human" and "tty_chars" not in observation_keys:
@@ -114,7 +116,11 @@ def make_nethack_env(env_name, cfg, _env_config=None, render_mode: Optional[str]
 
     #if env_name in ("nethack_staircase", "nethack_pet", "nethack_oracle"):
     #    kwargs.update(reward_win=cfg.reward_win, reward_lose=cfg.reward_lose)
-            
+    
+    # not sure if this is really needed?
+    #if env_name == "nethack_challenge":
+    #    kwargs.update(actions=nethack.ACTIONS)
+        
     # else:  # print warning once
     # warnings.warn("Ignoring cfg.reward_win and cfg.reward_lose")
 
@@ -129,7 +135,7 @@ def make_nethack_env(env_name, cfg, _env_config=None, render_mode: Optional[str]
             rescale_font_size=(cfg.pixel_size, cfg.pixel_size),
         )
 
-    if cfg.llm_reward_type in ["motif_legacy"]:
+    if cfg.llm_reward_type in ["motif", "motif_legacy"]:
         env = MessageCountsWrapper(env)
 
     if cfg.use_prev_action:
@@ -139,6 +145,10 @@ def make_nethack_env(env_name, cfg, _env_config=None, render_mode: Optional[str]
         env = BlstatsInfoWrapper(env)
         env = TaskRewardsInfoWrapper(env)
 
+
+    if cfg.inv_input_type != "none":
+        env = InventorySelectionWrapper(env)
+        env = NLETokenizerWrapper(env)
         
 
     if cfg.with_sol:
@@ -152,13 +162,9 @@ def make_nethack_env(env_name, cfg, _env_config=None, render_mode: Optional[str]
             'controller': cfg.sol_controller_reward_scale,
         }
 
-        # option rewards are in CSV format, i.e. "score,health", parse them here
-        base_policies = [
-            r + '_score' if 'task_reward' not in r else r for r in cfg.sol_option_rewards.split(',')
-        ]
-            
-        controller_reward_key = cfg.sol_controller_reward_key
-        if 'task_reward' not in controller_reward_key:
+        base_policies = [r + '_score' for r in cfg.sol_option_rewards.split('+')]
+        controller_reward_key = cfg.sol_controller_reward_key 
+        if controller_reward_key != 'task_reward':
             controller_reward_key += '_score'
             
         env = HierarchicalWrapper(
@@ -180,5 +186,7 @@ def make_nethack_env(env_name, cfg, _env_config=None, render_mode: Optional[str]
 
         env = FlatIntrinsicRewardsWrapper(env, reward_scale)
         
+
+
     return env
 
