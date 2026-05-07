@@ -9,7 +9,11 @@ import torch
 from torch import Tensor, nn
 from torch.nn.utils.rnn import PackedSequence, pack_padded_sequence, pad_packed_sequence
 
-from sample_factory.algo.utils.action_distributions import is_continuous_action_space, sample_actions_log_probs
+from sample_factory.algo.utils.action_distributions import (
+    is_continuous_action_space,
+    sample_actions_log_probs,
+    sol_active_branch_log_probs,
+)
 from sample_factory.algo.utils.running_mean_std import RunningMeanStdInPlace, running_mean_std_summaries
 from sample_factory.algo.utils.tensor_dict import TensorDict
 from sample_factory.cfg.configurable import Configurable
@@ -114,10 +118,29 @@ class ActorCritic(nn.Module, Configurable):
     def action_distribution(self):
         return self.last_action_distribution
 
-    def _maybe_sample_actions(self, sample_actions: bool, result: TensorDict) -> None:
+    def _maybe_sample_actions(
+        self,
+        sample_actions: bool,
+        result: TensorDict,
+        normalized_obs: Optional[Dict[str, Tensor]] = None,
+    ) -> None:
         if sample_actions:
-            # for non-trivial action spaces it is faster to do these together
-            actions, result["log_prob_actions"] = sample_actions_log_probs(self.last_action_distribution)
+            distribution = self.last_action_distribution
+            if (
+                self.cfg.with_sol
+                and self.cfg.sol_corrected_logprobs
+                and normalized_obs is not None
+                and "current_policy_vec" in normalized_obs
+            ):
+                actions = distribution.sample()
+                controller_action_dim = self.action_space.controller_action_space_index
+                controller_indices = normalized_obs["current_policy_vec"].long()[:, -1]
+                result["log_prob_actions"] = sol_active_branch_log_probs(
+                    distribution, actions, controller_action_dim, controller_indices
+                )
+            else:
+                # for non-trivial action spaces it is faster to do these together
+                actions, result["log_prob_actions"] = sample_actions_log_probs(distribution)
             assert actions.dim() == 2  # TODO: remove this once we test everything
             result["actions"] = actions.squeeze(dim=1)
 
@@ -128,7 +151,12 @@ class ActorCritic(nn.Module, Configurable):
         raise NotImplementedError()
 
     def forward_tail(
-        self, core_output, values_only: bool, sample_actions: bool, action_mask: Optional[Tensor] = None
+        self,
+        core_output,
+        values_only: bool,
+        sample_actions: bool,
+        action_mask: Optional[Tensor] = None,
+        normalized_obs: Optional[Dict[str, Tensor]] = None,
     ) -> TensorDict:
         raise NotImplementedError()
 
@@ -172,7 +200,12 @@ class ActorCriticSharedWeights(ActorCritic):
         return x, new_rnn_states
 
     def forward_tail(
-        self, core_output, values_only: bool, sample_actions: bool, action_mask: Optional[Tensor] = None
+        self,
+        core_output,
+        values_only: bool,
+        sample_actions: bool,
+        action_mask: Optional[Tensor] = None,
+        normalized_obs: Optional[Dict[str, Tensor]] = None,
     ) -> TensorDict:
         decoder_output = self.decoder(core_output)
         values = self.critic_linear(decoder_output).squeeze()
@@ -188,7 +221,7 @@ class ActorCriticSharedWeights(ActorCritic):
         # `action_logits` is not the best name here, better would be "action distribution parameters"
         result["action_logits"] = action_distribution_params
 
-        self._maybe_sample_actions(sample_actions, result)
+        self._maybe_sample_actions(sample_actions, result, normalized_obs)
         return result
 
     def forward(
@@ -196,7 +229,9 @@ class ActorCriticSharedWeights(ActorCritic):
     ) -> TensorDict:
         x = self.forward_head(normalized_obs_dict)
         x, new_rnn_states = self.forward_core(x, rnn_states)
-        result = self.forward_tail(x, values_only, sample_actions=True, action_mask=action_mask)
+        result = self.forward_tail(
+            x, values_only, sample_actions=True, action_mask=action_mask, normalized_obs=normalized_obs_dict
+        )
         result["new_rnn_states"] = new_rnn_states
         return result
 
@@ -294,7 +329,12 @@ class ActorCriticSeparateWeights(ActorCritic):
         return self.core_func(head_output, rnn_states)
 
     def forward_tail(
-        self, core_output, values_only: bool, sample_actions: bool, action_mask: Optional[Tensor] = None
+        self,
+        core_output,
+        values_only: bool,
+        sample_actions: bool,
+        action_mask: Optional[Tensor] = None,
+        normalized_obs: Optional[Dict[str, Tensor]] = None,
     ) -> TensorDict:
         core_outputs = core_output.chunk(len(self.cores), dim=1)
 
@@ -315,7 +355,7 @@ class ActorCriticSeparateWeights(ActorCritic):
 
         result["action_logits"] = action_distribution_params
 
-        self._maybe_sample_actions(sample_actions, result)
+        self._maybe_sample_actions(sample_actions, result, normalized_obs)
         return result
 
     def forward(
@@ -323,7 +363,9 @@ class ActorCriticSeparateWeights(ActorCritic):
     ) -> TensorDict:
         x = self.forward_head(normalized_obs_dict)
         x, new_rnn_states = self.forward_core(x, rnn_states)
-        result = self.forward_tail(x, values_only, sample_actions=True, action_mask=action_mask)
+        result = self.forward_tail(
+            x, values_only, sample_actions=True, action_mask=action_mask, normalized_obs=normalized_obs_dict
+        )
         result["new_rnn_states"] = new_rnn_states
         return result
 

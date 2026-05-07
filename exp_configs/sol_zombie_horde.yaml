@@ -15,6 +15,7 @@ sol_multi_num_coefs: [3]
 sol_multi_coef_spacing: ['linear']
 sol_multi_normalise_coefs: ['false']
 sol_controller_action_space: ['discrete']
+sol_corrected_logprobs: [True, False]
 
 use_inv_selection_wrapper: [False]
 
