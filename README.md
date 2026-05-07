@@ -1,14 +1,25 @@
 # Scalable Option Learning 
 
-Official implementation of the SOL algorithm described in the paper [Scalable Option Learning in High-Throughput Environments](https://arxiv.org/abs/2509.00338) by [Mikael Henaff](mikaelhenaff.net), [Scott Fujimoto](https://scholar.google.com/citations?user=1Nk3WZoAAAAJ&hl=en), [Michael Matthews](https://www.mtmatthews.com/) and [Michael Rabbat](https://ai.meta.com/people/1148536089838617/michael-rabbat/).
+Official implementation of Scalable Option Learning (SOL) and related algorithms. SOL is a highly scalable hierarchical RL algorithm which jointly learns option and controller policies from online interaction, described in the following paper:
 
-SOL is a highly scalable hierarchical RL algorithm which jointly learns option and controller policies from online interaction. It requires a set of reward functions (one for each option or sub-policy), and will simultaneously learn policies for each one as well as a controller which coordinates them in order to maximize the task reward. Scalability is achieved by representing both both high and low-level policies with a single neural network enabling batched learning, efficient advantage and return computations, and environment wrappers to track option execution. The clip below shows an agent trained on NetHack with options to maximize score and health. 
+- [Scalable Option Learning in High-Throughput Environments](https://arxiv.org/abs/2509.00338) by [Mikael Henaff](mikaelhenaff.net), [Scott Fujimoto](https://scholar.google.com/citations?user=1Nk3WZoAAAAJ&hl=en), [Michael Matthews](https://www.mtmatthews.com/) and [Michael Rabbat](https://ai.meta.com/people/1148536089838617/michael-rabbat/) (ICML 2026)
+
+The original SOL algorithm requires a set of reward functions (one for each option or sub-policy), and will simultaneously learn policies for each one as well as a controller which coordinates them in order to maximize the task reward. Scalability is achieved by representing both both high and low-level policies with a single neural network enabling batched learning, efficient advantage and return computations, and environment wrappers to track option execution. The clip below shows an agent trained on NetHack with options to maximize score and health. 
 
 
 <p align="center">
   <img src="assets/sol_trailer.gif" width="90%" alt="Description">
 </p>
 
+
+Hierarchical Behaviour Spaces (HBS) parameterizes options by linear combinations over reward functions, rather than having one option per reward. This effectively enables learning a number of options that is combinatorial in the number of reward functions, which is more expressive. HBS is implemented here using SOL's scalable framework. 
+
+- [Hierarchical Behaviour Spaces](https://arxiv.org/abs/2604.24558) by [Michael Matthews](https://www.mtmatthews.com/), [Anssi Kanervisto](https://scholar.google.com/citations?view_op=list_works&hl=en&hl=en&user=iPimqbwAAAAJ), [Jakob Foerster](https://www.jakobfoerster.com/), [Pierluca D'Oro](https://proceduralia.github.io/), [Scott Fujimoto](https://scholar.google.com/citations?user=1Nk3WZoAAAAJ&hl=en) and [Mikael Henaff](mikaelhenaff.net) (RLC 2026)
+
+
+This repo also contains the updates to the NetHack Learning Environment described in the blog post:
+
+- [Revisiting The NetHack Learning Environment](https://iclr-blogposts.github.io/2026/blog/2026/revisiting-the-nle/) by [Michael Matthews](https://www.mtmatthews.com/), [Anssi Kanervisto](https://scholar.google.com/citations?view_op=list_works&hl=en&hl=en&user=iPimqbwAAAAJ), [Jakob Foerster](https://www.jakobfoerster.com/), [Pierluca D'Oro](https://proceduralia.github.io/), [Scott Fujimoto](https://scholar.google.com/citations?user=1Nk3WZoAAAAJ&hl=en) and [Mikael Henaff](mikaelhenaff.net) (ICLR 2026 Blog Post)
 
 
 ## Installation
@@ -28,7 +39,7 @@ pip install -r requirements.txt
 You will also need to compile the rewards computation code to Cython:
 
 ```
-cd sol
+cd sample_factory/algo/utils/cython
 python setup.py build_ext --inplace
 ```
 
@@ -40,13 +51,13 @@ The script can be run in dry mode to run locally, and also to submit jobs to a c
 To run single-threaded locally for debugging:
 
 ```
-python launch.py --expfile exp_configs/{sweep_file}.yaml --mode local --debug
+python launch.py --expfile exp_configs/{sweep_file}.yaml --dry --debug
 ```
 
 To run locally in multi-thread mode (for example, for speed tests):
 
 ```
-python launch.py --expfile exp_configs/{sweep_file}.yaml --mode local
+python launch.py --expfile exp_configs/{sweep_file}.yaml --dry
 ```
 
 To submit the full sweep to a Slurm cluster:
@@ -55,7 +66,19 @@ To submit the full sweep to a Slurm cluster:
 python launch.py --expfile exp_configs/{sweep_file}.yaml --wandb_proj {wandb_project_name} --mode slurm --partition {partition_name} --num_cpus {num_cpus} --seeds 5 --days 3
 ```
 
-The config files for the experiments in the paper can be found in the `exp_configs` folder. 
+The config files for the experiments in the paper can be found in the `exp_configs` folder.
+
+To use the original version of SOL with one option per reward function, pass the following argument:
+
+```
+--sol_controller_action_space discrete
+```
+
+To use SOL-HBS, use:
+
+```
+--sol_controller_action_space multidiscrete
+```
 
 
 ## Notes
@@ -118,7 +141,7 @@ env = HierarchicalWrapper(
 
 ## Citation
 
-If you use this code, please cite the following:
+If you use this code, please cite the relevant papers:
 
 ```
 @misc{henaff2025scalableoptionlearninghighthroughput,
@@ -130,6 +153,26 @@ If you use this code, please cite the following:
       primaryClass={cs.LG},
       url={https://arxiv.org/abs/2509.00338}, 
 }
+
+@misc{matthews2026hierarchicalbehaviourspaces,
+      title={Hierarchical Behaviour Spaces}, 
+      author={Michael Tryfan Matthews and Anssi Kanervisto and Jakob Foerster and Pierluca D'Oro and Scott Fujimoto and Mikael Henaff},
+      year={2026},
+      eprint={2604.24558},
+      archivePrefix={arXiv},
+      primaryClass={cs.AI},
+      url={https://arxiv.org/abs/2604.24558}, 
+}
+
+@inproceedings{matthews2026revisitingthenethack,
+  author = {Matthews, Michael and D'Oro, Pierluca and Kanervisto, Anssi and Fujimoto, Scott and Foerster, Jakob and Henaff, Mikael},
+  title = {Revisiting The NetHack Learning Environment},
+  booktitle = {ICLR Blogposts 2026},
+  year = {2026},
+  date = {April 27, 2026},
+  note = {https://iclr-blogposts.github.io/2026/blog/2026/revisiting-the-nle/},
+  url  = {https://iclr-blogposts.github.io/2026/blog/2026/revisiting-the-nle/}
+}
 ```
 
 
@@ -139,5 +182,4 @@ We use Alexei Petrenko's excellent [Sample Factory codebase](https://github.com/
 
 ## License
 
-The code portions specific to SOL contained in the `sol/` subfolder are licensed by CC-BY-NC. The original Sample Factory code is licensed under the MIT license. 
-
+The code portions specific to SOL are licensed by CC-BY-NC. The original Sample Factory code is licensed under the MIT license. 

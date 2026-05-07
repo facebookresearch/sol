@@ -10,7 +10,7 @@ from sf_examples.nethack.nethack_params import (
     add_extra_params_general,
     add_extra_params_model,
     add_extra_params_nethack_env,
-    nethack_override_defaults,
+    nethack_override_defaults, add_extra_params_rewards,
 )
 from sf_examples.nethack.train_nethack import register_nethack_components
 
@@ -23,14 +23,14 @@ def main():  # pragma: no cover
     add_extra_params_nethack_env(parser)
     add_extra_params_model(parser)
     add_extra_params_general(parser)
+    add_extra_params_rewards(parser)
     nethack_override_defaults(cfg.env, parser)
     cfg = parse_full_cfg(parser)
     cfg = maybe_load_from_checkpoint(cfg)
     cfg.eval_env_frameskip = 1
-    #cfg.fps=5
 
 
-    status = enjoy(cfg)
+    status = enjoy(cfg, render_mode="human")
     return status
 
 

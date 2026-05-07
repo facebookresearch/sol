@@ -15,8 +15,7 @@ import gymnasium as gym
 import numpy as np
 #import nle  # noqa: F401
 #from nle import nethack
-
-import nle_patched.nle as nle
+import nle_patched.nle as nle  # noqa: F401
 import nle_patched.nle.nethack as nethack
 
 import minihack
@@ -103,6 +102,7 @@ def main():
     
     register_nethack_components()
     cfg = parse_nethack_args()
+    cfg.inv_input_type = "tok"
     play(cfg)
 
 

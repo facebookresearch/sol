@@ -70,6 +70,27 @@ def sample_actions_log_probs(distribution):
         return actions, log_prob_actions
 
 
+def sol_active_branch_log_probs(
+    distribution: "TupleActionDistribution",
+    actions: Tensor,
+    controller_action_dim: int,
+    controller_indices: Tensor,
+) -> Tensor:
+    """Sum tuple log probs over only the active SOL branch.
+
+    On controller timesteps (controller_indices == 1) sum the components from
+    controller_action_dim onward, on option timesteps sum the components before it.
+    """
+    list_of_action_batches = torch.split(actions, distribution.action_lengths, dim=1)
+    log_probs = [d.log_prob(a) for d, a in zip(distribution.distributions, list_of_action_batches)]
+    log_probs = [lp.unsqueeze(dim=1) for lp in log_probs]
+    log_probs = torch.cat(log_probs, dim=1)
+    controller_log_probs = log_probs[:, controller_action_dim:].sum(dim=1)
+    option_log_probs = log_probs[:, :controller_action_dim].sum(dim=1)
+    controller_indices = controller_indices.to(log_probs.device)
+    return controller_indices * controller_log_probs + (1 - controller_indices) * option_log_probs
+
+
 def argmax_actions(distribution):
     if isinstance(distribution, TupleActionDistribution):
         return distribution.argmax()

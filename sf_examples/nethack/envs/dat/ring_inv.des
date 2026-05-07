@@ -1,0 +1,67 @@
+MAZE: "mylevel",' '
+INIT_MAP:solidfill,' '
+GEOMETRY:left,top
+MAP
+-------------------------------------------------------------------------
+|.......................................................................|
+-------------------------------------------------------------------------
+ENDMAP
+
+REGION:(1,1,79,21),lit,"ordinary"
+
+
+STAIR: (1,1),down
+STAIR: (71,1),down
+
+MONSTER:('v',"Ice Vortex"),(2,1),asleep
+MONSTER:('v',"Ice Vortex"),(3,1),asleep
+MONSTER:('v',"Ice Vortex"),(4,1),asleep
+MONSTER:('v',"Ice Vortex"),(5,1),asleep
+MONSTER:('v',"Ice Vortex"),(6,1),asleep
+MONSTER:('v',"Ice Vortex"),(7,1),asleep
+MONSTER:('v',"Ice Vortex"),(8,1),asleep
+MONSTER:('v',"Ice Vortex"),(9,1),asleep
+MONSTER:('v',"Ice Vortex"),(10,1),asleep
+MONSTER:('v',"Ice Vortex"),(11,1),asleep
+MONSTER:('v',"Ice Vortex"),(12,1),asleep
+MONSTER:('v',"Ice Vortex"),(13,1),asleep
+MONSTER:('v',"Ice Vortex"),(14,1),asleep
+MONSTER:('v',"Ice Vortex"),(15,1),asleep
+MONSTER:('v',"Ice Vortex"),(16,1),asleep
+MONSTER:('v',"Ice Vortex"),(17,1),asleep
+MONSTER:('v',"Ice Vortex"),(18,1),asleep
+MONSTER:('e',"Freezing Sphere"),(19,1),asleep
+MONSTER:('e',"Freezing Sphere"),(20,1),asleep
+MONSTER:('e',"Freezing Sphere"),(21,1),asleep
+
+
+MONSTER:('e',"Flaming Sphere"),(51,1),asleep
+MONSTER:('e',"Flaming Sphere"),(52,1),asleep
+MONSTER:('e',"Flaming Sphere"),(53,1),asleep
+MONSTER:('v',"Fire Vortex"),(54,1),asleep
+MONSTER:('v',"Fire Vortex"),(55,1),asleep
+MONSTER:('v',"Fire Vortex"),(56,1),asleep
+MONSTER:('v',"Fire Vortex"),(57,1),asleep
+MONSTER:('v',"Fire Vortex"),(58,1),asleep
+MONSTER:('v',"Fire Vortex"),(59,1),asleep
+MONSTER:('v',"Fire Vortex"),(60,1),asleep
+MONSTER:('v',"Fire Vortex"),(61,1),asleep
+MONSTER:('v',"Fire Vortex"),(62,1),asleep
+MONSTER:('v',"Fire Vortex"),(63,1),asleep
+MONSTER:('v',"Fire Vortex"),(64,1),asleep
+MONSTER:('v',"Fire Vortex"),(65,1),asleep
+MONSTER:('v',"Fire Vortex"),(66,1),asleep
+MONSTER:('v',"Fire Vortex"),(67,1),asleep
+MONSTER:('v',"Fire Vortex"),(68,1),asleep
+MONSTER:('v',"Fire Vortex"),(69,1),asleep
+MONSTER:('v',"Fire Vortex"),(70,1),asleep
+
+IF [55%] {
+   OBJECT:('=',"fire resistance"),(36,1),blessed
+} ELSE {
+   OBJECT:('=',"cold resistance"),(36,1),blessed
+}
+
+OBJECT:('?',"identify"),(35,1),blessed
+
+BRANCH:(36,1,36,1),(40,1,40,1)
