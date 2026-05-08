@@ -861,7 +861,7 @@ def add_sol_args(p: ArgumentParser):
         "--sol_corrected_logprobs",
         default=False,
         type=str2bool,
-        help="The original implementation had a small bug where the log probabilities of both the controller and option policy were combined. This does not introduce bias because the actions of the inactive policy do not affect the MDP, but it could increase variance. Setting this argument to true fixes the issue, however, some preliminary experiments indicate that this makes performance a bit worse on the NLE. My guess is that certain hyperparameters might need to be re-tuned when this is said to be true, therefore leaving it to false for now.",
+        help="The original implementation had a small bug where the log probabilities of both the controller and option policy were combined. This does not introduce bias because the actions of the inactive policy are not sent to the env, but it could increase variance. Setting this argument to True fixes the issue, however some preliminary experiments indicate that this might make performance a bit worse on the NLE with HBS (performance was similar/a bit better on Zombie Horde). My guess is that certain hyperparameters might need to be re-tuned when this is set to True, therefore leaving it False for now.",
     )    
     p.add_argument(
         "--sol_num_option_steps",
