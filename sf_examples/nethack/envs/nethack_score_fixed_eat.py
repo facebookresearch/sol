@@ -22,9 +22,9 @@ TASK_ACTIONS = tuple(
 
 class NetHackScoreFixedEat(base.NLE):
     """
-    This is a copy of the Score env, except that the EAT action causes a random edible 
-    inventory item to be eaten. With the standard Score task, many times eating an item 
-    is not possible because the action for selecting that inventory item is missing. 
+    This is a copy of the Score env, except that the EAT action causes a random edible
+    inventory item to be eaten. With the standard Score task, many times eating an item
+    is not possible because the action for selecting that inventory item is missing.
     """
 
     def __init__(
@@ -42,7 +42,7 @@ class NetHackScoreFixedEat(base.NLE):
         self._frozen_steps = 0
         self.eat_msg = "What do you want to eat"
         self.re_inv_pattern = re.compile(r"\[([a-zA-Z]+)")
-        
+
 
         actions = kwargs.pop("actions", TASK_ACTIONS)
         super().__init__(*args, actions=actions, **kwargs)
@@ -154,9 +154,9 @@ class NetHackScoreFixedEat(base.NLE):
             self._get_information(end_status),
         )
 
-    
 
-    
+
+
 
 registration.register(
     id="NetHackScoreFixedEat-v0",

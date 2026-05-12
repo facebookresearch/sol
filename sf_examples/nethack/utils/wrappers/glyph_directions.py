@@ -16,10 +16,10 @@ class GlyphDirectionsWrapper(gym.Wrapper):
         obs_spaces = {"glyph_directions": gym.spaces.Box(-1.0, 1.0, shape=(3 * len(self.glyphs),), dtype=np.float32)}
         obs_spaces.update([(k, self.env.observation_space[k]) for k in self.env.observation_space])
         self.observation_space = gym.spaces.Dict(obs_spaces)
-        
+
 
     def _get_glyph_directions(self, obs):
-        agent_pos = obs['blstats'][:2] 
+        agent_pos = obs['blstats'][:2]
         deltas = []
         for i in self.glyph_ids:
             glyph_pos = (obs['glyphs'] == i).nonzero()
@@ -30,7 +30,7 @@ class GlyphDirectionsWrapper(gym.Wrapper):
                 glyph_pos = np.array((glyph_pos[1][:1], glyph_pos[0][:1])).squeeze()
                 found = 1.0
             deltas.append(np.append((glyph_pos - agent_pos) * self.norm, found))
-            
+
         return np.concatenate(deltas)
 
 
@@ -47,7 +47,7 @@ class GlyphDirectionsWrapper(gym.Wrapper):
         deltas = self._get_glyph_directions(obs)
         obs['glyph_directions'] = deltas
         return obs, reward, term, trun, info
-        
 
-        
-        
+
+
+

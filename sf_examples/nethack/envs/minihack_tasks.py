@@ -15,7 +15,7 @@ from sf_examples.nethack.utils.task_rewards import (
     HealthScore,
     StaircaseScore,
     GoldScore,
-    ArmorScore, 
+    ArmorScore,
 )
 
 
@@ -68,12 +68,12 @@ class MiniHackGemStack(MiniHack):
 
 class MiniHackZombieHorde(NetHackScoreFixedEat, MiniHack):
     def __init__(self, *args, **kwargs):
-        
+
         actions = MOVE_ACTIONS + (
             nethack.Command.SEARCH,
             nethack.Command.EAT,
         )
-        
+
         super().__init__(
             *args,
             des_file=f"{DAT_DIR}/zombie_horde.des",
@@ -86,15 +86,15 @@ class MiniHackZombieHorde(NetHackScoreFixedEat, MiniHack):
 
     def _reward_fn(self, last_observation, action, observation, end_status):
         return self.score.reward(self, last_observation, observation, {"end_status": end_status})
-        
-        
+
+
 
 class MiniHackTreasureDash(MiniHack):
     def __init__(self, *args, **kwargs):
-        
+
         actions = MOVE_ACTIONS + (
             nethack.Command.SEARCH,
-        )        
+        )
         super().__init__(
             *args,
             des_file=f"{DAT_DIR}/treasure_dash.des",
@@ -105,7 +105,7 @@ class MiniHackTreasureDash(MiniHack):
         )
         self.gold = GoldScore()
         self.staircase = StaircaseScore()
-        
+
     def _reward_fn(self, last_observation, action, observation, end_status):
         gold = self.gold.reward(self, last_observation, observation, {"end_status": end_status})
         staircase = self.staircase.reward(self, last_observation, observation, {"end_status": end_status})
@@ -114,10 +114,10 @@ class MiniHackTreasureDash(MiniHack):
 
 class MiniHackRingInv(MiniHack):
     def __init__(self, *args, **kwargs):
-        
+
         actions = MOVE_ACTIONS + (
             nethack.Command.SEARCH,
-        )        
+        )
         super().__init__(
             *args,
             des_file=f"{DAT_DIR}/ring_inv.des",
@@ -138,18 +138,18 @@ class MiniHackRingInv(MiniHack):
     def reset(self, *args, **kwargs):
         obs, info = super().reset(*args, **kwargs)
 
-        # pick up ring 
+        # pick up ring
         raw_obs, _ = self.nethack.step(nethack.Command.PICKUP)
         message = raw_obs[self._message_index]
         message = bytes(message[message != 0].tolist()).decode("latin-1")
-                
-        # put it on 
+
+        # put it on
         ring_letter = message[0]
         raw_obs, _ = self.nethack.step(nethack.Command.PUTON)
-        
+
         # make sure to pick the right one
         raw_obs, _ = self.nethack.step(ord(ring_letter))
-        
+
         # pick right finger
         raw_obs, _ = self.nethack.step(ord('r'))
         raw_obs, _ = self.nethack.step(nethack.CompassDirection.W)
@@ -161,7 +161,7 @@ class MiniHackRingInv(MiniHack):
 
         # read it
         scroll_letter = message[0]
-        raw_obs, _ = self.nethack.step(nethack.Command.READ)        
+        raw_obs, _ = self.nethack.step(nethack.Command.READ)
         raw_obs, _ = self.nethack.step(ord(scroll_letter))
         raw_obs, _ = self.nethack.step(ord(" "))
         raw_obs, _ = self.nethack.step(nethack.Command.SEARCH)
@@ -180,11 +180,11 @@ class MiniHackRingInv(MiniHack):
 
         return obs, info
 
-    
+
     def _reward_fn(self, last_observation, action, observation, end_status):
         score = self.score.reward(self, last_observation, observation, end_status)
         return score
-    
+
 
 
 
@@ -203,15 +203,15 @@ class MiniHackArmorInv(MiniHack):
     def _reward_fn(self, last_observation, action, observation, end_status):
         armor = self.armor.reward(self, last_observation, observation, end_status)
         return armor
-        
-        
+
+
 
 class MiniHackArmorUncursed(MiniHack):
     def __init__(self, *args, **kwargs):
         super().__init__(
             *args,
             des_file=f"{DAT_DIR}/armor_uncursed.des",
-            autopickup=False, 
+            autopickup=False,
             **kwargs
         )
         self.armor = ArmorScore()
@@ -219,15 +219,15 @@ class MiniHackArmorUncursed(MiniHack):
     def _reward_fn(self, last_observation, action, observation, end_status):
         armor = self.armor.reward(self, last_observation, observation, end_status)
         return armor
-        
-        
+
+
 
 class MiniHackArmorMixedCurse(MiniHack):
     def __init__(self, *args, **kwargs):
         super().__init__(
             *args,
             des_file=f"{DAT_DIR}/armor_mixed_curse.des",
-            autopickup=False, 
+            autopickup=False,
             **kwargs
         )
         self.armor = ArmorScore()
@@ -235,15 +235,15 @@ class MiniHackArmorMixedCurse(MiniHack):
     def _reward_fn(self, last_observation, action, observation, end_status):
         armor = self.armor.reward(self, last_observation, observation, end_status)
         return armor
-        
-        
-        
+
+
+
 class MiniHackArmorEnchantScrolls(MiniHack):
     def __init__(self, *args, **kwargs):
         super().__init__(
             *args,
             des_file=f"{DAT_DIR}/armor_and_scrolls.des",
-            autopickup=False, 
+            autopickup=False,
             **kwargs
         )
         self.armor = ArmorScore()
@@ -251,57 +251,57 @@ class MiniHackArmorEnchantScrolls(MiniHack):
     def _reward_fn(self, last_observation, action, observation, end_status):
         armor = self.armor.reward(self, last_observation, observation, end_status)
         return armor
-        
 
 
-    
+
+
 registration.register(
     id="MiniHack-GemStack-v0",
     entry_point=MiniHackGemStack,
     kwargs={'character': "val-dwa-law-fem", 'max_episode_steps': 20}
 )
-        
+
 registration.register(
     id="MiniHack-ZombieHorde-v0",
     entry_point=MiniHackZombieHorde,
-    kwargs={'character': "mon-hum-neu-mal", 'max_episode_steps': 1500}    
+    kwargs={'character': "mon-hum-neu-mal", 'max_episode_steps': 1500}
 )
 
 registration.register(
     id="MiniHack-TreasureDash-v0",
     entry_point=MiniHackTreasureDash,
-    kwargs={'character': "mon-hum-neu-mal", 'max_episode_steps': 40}    
+    kwargs={'character': "mon-hum-neu-mal", 'max_episode_steps': 40}
 )
 
 registration.register(
     id="MiniHack-RingInv-v0",
     entry_point=MiniHackRingInv,
-    kwargs={'character': "cav-hum-law-mal", 'max_episode_steps': 200}    
+    kwargs={'character': "cav-hum-law-mal", 'max_episode_steps': 200}
 )
 
 registration.register(
     id="MiniHack-ArmorInv-v0",
     entry_point=MiniHackArmorInv,
-    kwargs={'character': "wiz-hum-neu-mal", 'max_episode_steps': 50}    
+    kwargs={'character': "wiz-hum-neu-mal", 'max_episode_steps': 50}
 )
 
 
 registration.register(
     id="MiniHack-ArmorUncursed-v0",
     entry_point=MiniHackArmorUncursed,
-    kwargs={'character': "wiz-hum-neu-mal", 'max_episode_steps': 1000}    
+    kwargs={'character': "wiz-hum-neu-mal", 'max_episode_steps': 1000}
 )
 
 registration.register(
     id="MiniHack-ArmorIdentify-v0",
     entry_point=MiniHackArmorMixedCurse,
-    kwargs={'character': "wiz-hum-neu-mal", 'max_episode_steps': 1000}    
+    kwargs={'character': "wiz-hum-neu-mal", 'max_episode_steps': 1000}
 )
 
 registration.register(
     id="MiniHack-ArmorEnchant-v0",
     entry_point=MiniHackArmorEnchantScrolls,
-    kwargs={'character': "wiz-hum-neu-mal", 'max_episode_steps': 1000}    
+    kwargs={'character': "wiz-hum-neu-mal", 'max_episode_steps': 1000}
 )
 
 

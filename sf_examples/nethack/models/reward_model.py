@@ -13,7 +13,7 @@ from sf_examples.nethack.models.torchbeast import TorchBeastMessageEncoder
 #from sample_factory.utils.utils import AttrDict
 
 
-        
+
 
 
 class RunningMeanStd(object):
@@ -79,7 +79,7 @@ class LegacyMotifRewardModel(nn.Module):
 
 
 
-'''        
+'''
 class RewardSharedWeights(_ActorCriticSharedWeights):
     def __init__(self, make_encoder, make_core, seq_len, action_space, cfg, timing):
         super().__init__(make_encoder, make_core, action_space, cfg, timing)

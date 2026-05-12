@@ -14,7 +14,7 @@ from sf_examples.nethack.models.chaotic_dwarf import MessageEncoder, BLStatsEnco
 
 
 
-        
+
 
 class SymbolicGlyphNet(Encoder):
     def __init__(self, cfg: Config, obs_space: ObsSpace):
@@ -27,7 +27,7 @@ class SymbolicGlyphNet(Encoder):
         self.use_glyph_directions = cfg.use_glyph_directions
 
         glyphs_shape = obs_space["glyphs"].shape
-        
+
         self.H = glyphs_shape[0]
         self.W = glyphs_shape[1]
         self.crop_dim = cfg.crop_dim
@@ -35,7 +35,7 @@ class SymbolicGlyphNet(Encoder):
         self.k_dim = 2 * self.edim
 
         self.encoder_out_size = 0
-        
+
         self.glyph_embed = nn.Embedding(nethack.MAX_GLYPH, self.edim)
         self.crop = Crop(self.H, self.W, self.crop_dim, self.crop_dim)
 
@@ -45,12 +45,12 @@ class SymbolicGlyphNet(Encoder):
             nn.Conv2d(self.k_dim, 2 * self.k_dim, kernel_size=(3, 3), stride=2),
             nn.ELU(inplace=True),
         )
-                
+
         self.topline_encoder = torch.jit.script(MessageEncoder())
-        self.bottomline_encoder = torch.jit.script(BLStatsEncoder())        
+        self.bottomline_encoder = torch.jit.script(BLStatsEncoder())
         topline_shape = obs_space["message"].shape
         bottomline_shape = obs_space["blstats"].shape
-               
+
         if self.use_prev_action:
             self.num_actions = obs_space["prev_actions"].n
             self.prev_actions_dim = self.num_actions
@@ -92,7 +92,7 @@ class SymbolicGlyphNet(Encoder):
             return out.reshape(x.shape + (-1,))
         except Exception as e:
             raise ValueError("Invalid size") from e
-        
+
 
     def forward(self, obs_dict):
 
@@ -103,10 +103,10 @@ class SymbolicGlyphNet(Encoder):
         B, H, W = glyphs.shape
 
         encodings = []
-        
+
         topline_embed = self.topline_encoder(topline.float(memory_format=torch.contiguous_format).view(B, -1))
         encodings.append(topline_embed)
-        
+
         bottomline_embed = self.bottomline_encoder(bottom_line.float(memory_format=torch.contiguous_format).view(B, -1))
         encodings.append(bottomline_embed)
 
@@ -117,7 +117,7 @@ class SymbolicGlyphNet(Encoder):
             policy_embed = self.policy_encoder(obs_dict["current_policy_vec"].float().view(B, -1))
             encodings.append(policy_embed)
             crop_embed = crop_embed + policy_embed.unsqueeze(-1).unsqueeze(-1)
-        
+
         crop_embed = self.crop_conv(crop_embed)
         encodings.append(crop_embed.float(memory_format=torch.contiguous_format).view(B, -1))
 

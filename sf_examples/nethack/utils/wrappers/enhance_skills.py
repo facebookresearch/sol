@@ -17,5 +17,5 @@ class EnhanceSkillsWrapper(gym.Wrapper):
         if "You feel more confident in" in message:
             obs, reward, term, trun, info = self.env.step(self.env.unwrapped.actions.index(nethack.Command.ENHANCE))
             obs, reward, term, trun, info = self.env.step(self.env.unwrapped.actions.index(ord('a')))
-            
+
         return obs, reward, term, trun, info

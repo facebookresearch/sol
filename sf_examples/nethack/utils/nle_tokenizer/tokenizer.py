@@ -15,7 +15,7 @@ import inflect
 
 # Note: we represent these as dicts mapping tuples of numeric characters to tokens.
 # This is so we can skip the step of decoding characters to strings and then to tokens,
-# which made things too slow. 
+# which made things too slow.
 
 # this does some simple NLP, like adding plural forms
 engine = inflect.engine()
@@ -710,12 +710,12 @@ WEAPONS = [
     "boomerang",
     "bullwhip",
     "rubber hose",
-    "unicorn horn",    
+    "unicorn horn",
 ]
 
 ARMOR = [
     'water walking boots',
-    'Uruk-hai shield', 
+    'Uruk-hai shield',
     'T-shirt',
     'studded leather armor',
     'splint mail',
@@ -852,7 +852,7 @@ GEMS = [
     'turquoise',
     'amethyst',
     'amber',
-    'garnet', 
+    'garnet',
 ]
 
 BEATITUDES = [
@@ -920,10 +920,10 @@ COMESTIBLES = [
     'food ration',
     'cram ration',
     'C-ration',
-    'K-ration', 
+    'K-ration',
     'tripe ration',
     'lembas wafer',
-    'cream pie', 
+    'cream pie',
     'pancake',
     'candy bar',
     'fortune cookie',
@@ -931,11 +931,11 @@ COMESTIBLES = [
     'apple',
     'orange',
     'banana',
-    'bananas', 
-    'sprig of wolfsbane', 
+    'bananas',
+    'sprig of wolfsbane',
     'pear',
     'slime mold',
-    'clove of garlic', 
+    'clove of garlic',
     'melon',
     'carrot',
     'eucalyptus leaf',
@@ -943,7 +943,7 @@ COMESTIBLES = [
     'meatball',
     'meat ring',
     'meat stick',
-    'huge chunk of meat', 
+    'huge chunk of meat',
     'egg',
     'lump of royal jelly',
     'lichen corpse',
@@ -954,7 +954,7 @@ COMESTIBLES = [
 OBJECT_TYPES += [engine.plural(item) for item in OBJECT_TYPES]
 COMESTIBLES += [engine.plural(item) for item in COMESTIBLES]
 
-    
+
 
 SHOPS = [
     'general store',
@@ -968,7 +968,7 @@ SHOPS = [
     'hardware',
     'rare books',
     'health food',
-    'lighting', 
+    'lighting',
 ]
 
 EROSIONS = [
@@ -987,7 +987,7 @@ RANDOM = [
     'worn)',
     'pair',
 ]
-    
+
 
 
 NUMBERS = [str(i) for i in range(10)]
@@ -1012,7 +1012,7 @@ VOCAB += COMESTIBLES
 VOCAB += EROSIONS
 VOCAB += OBJECT_TYPES
 VOCAB += SPECIAL_TOKENS
-    
+
 
 INV_TOKENIZER = defaultdict(int)
 
@@ -1092,9 +1092,9 @@ for p in DND_TOKENS:
             DND_TUPLE_TOKENIZER[tuple(key_np)] = cnt
 
         cnt += 1
-    
+
 print(f"Finished building DND tokenizer with {len(DND_TOKENIZER)} tokens.")
-    
+
 def process_message(msg):
     tokens = []
     for word in msg.split(" "):

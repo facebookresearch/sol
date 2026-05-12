@@ -22,7 +22,7 @@ import minihack
 
 from sf_examples.nethack.nethack_env import make_nethack_env
 from sf_examples.nethack.train_nethack import (
-    register_nethack_envs, 
+    register_nethack_envs,
     register_nethack_components,
     parse_nethack_args,
 )
@@ -32,7 +32,7 @@ from sf_examples.nethack.train_nethack import (
 def dummy_context():
     yield None
 
-    
+
 @contextlib.contextmanager
 def no_echo():
     tt = termios.tcgetattr(0)
@@ -42,11 +42,11 @@ def no_echo():
     finally:
         termios.tcsetattr(0, termios.TCSAFLUSH, tt)
 
-        
+
 def go_back(num_lines):
     print("\033[%dA" % num_lines)
 
-    
+
 def get_action(env):
     while True:
         with no_echo():
@@ -71,10 +71,10 @@ def play(cfg):
     steps = 0
     total_reward = 0
     action = None
-    
+
 
     env = make_nethack_env(cfg.env, cfg, render_mode='human')
-    
+
     obs, info = env.reset()
 
     while True:
@@ -83,7 +83,7 @@ def play(cfg):
 
         if action is None:
             break
-        
+
         obs, reward, done, trunc, info = env.step(action)
         steps += 1
         total_reward += reward
@@ -99,7 +99,7 @@ def play(cfg):
 
 
 def main():
-    
+
     register_nethack_components()
     cfg = parse_nethack_args()
     cfg.inv_input_type = "tok"

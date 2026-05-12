@@ -28,7 +28,7 @@ class Score:
         RUNNING = 0
         DEATH = 1
         TASK_SUCCESSFUL = 2
-    
+
     def __init__(self):
         self.score = 0
         self.sokoban_levels = {}
@@ -72,7 +72,7 @@ class IntrinsicsScore(Score):
 
 
 
-    
+
 class PoisonResistanceScore(Score):
     def reward(self, env, last_observation, observation, info, training_info=None):
         message = bytes(observation[env._message_index]).decode("latin-1").lower()
@@ -125,10 +125,10 @@ class FireResistanceScore(Score):
                 reward = 1
 
         return reward
-    
-    
 
-    
+
+
+
 
 class GoldScore(Score):
     def reward(self, env, last_observation, observation, info, training_info=None):
@@ -137,12 +137,12 @@ class GoldScore(Score):
 
         old_gold = old_blstats[nethack.NLE_BL_GOLD]
         gold = blstats[nethack.NLE_BL_GOLD]
-        
+
         reward = gold - old_gold
 
         if info["end_status"] != self.StepStatus.RUNNING:
             reward = 0.0
-        
+
         self.score += reward
 
         return reward
@@ -169,10 +169,10 @@ class ExperienceScore(Score):
 
         if info["end_status"] != self.StepStatus.RUNNING:
             reward = 0.0
-        
+
         self.score += reward
 
-        return reward    
+        return reward
 
 
 class ScoutScore(Score):
@@ -361,7 +361,7 @@ class HealthScore(Score):
 
         if info["end_status"] != self.StepStatus.RUNNING:
             reward = 0.0
-        
+
         self.score += reward
 
         return reward
@@ -375,10 +375,10 @@ class ScoreScore(Score):
         score = blstats[nethack.NLE_BL_SCORE]
 
         reward = score - old_score
-        
+
         if info["end_status"] != self.StepStatus.RUNNING:
             reward = 0.0
-        
+
         self.score += reward
 
         return reward
@@ -391,7 +391,7 @@ class KillsScore(Score):
             reward = 1
         else:
             reward = 0
-        
+
         self.score += reward
 
         return reward
@@ -405,11 +405,11 @@ class EnhanceSkillScore(Score):
             reward = 1
         else:
             reward = 0
-        
+
         self.score += reward
 
         return reward
-    
+
 
 
 class ProjectileScore(Score):
@@ -418,7 +418,7 @@ class ProjectileScore(Score):
 
         reward = 0
 
-        
+
         if " hits the " in message:
             message = message.replace('!', '.')
             sentences = message.split('.')
@@ -432,7 +432,7 @@ class ProjectileScore(Score):
                         obj = obj.replace('.', '')
                         if obj in MONSTERS_SET:
                             reward = 1
-            
+
 
         '''
         if projectile_pattern.search(message) and not any(s in message for s in ('floor', 'ceiling', 'cavern', 'rock', 'falls', 'ground')):
@@ -440,11 +440,11 @@ class ProjectileScore(Score):
         else:
             reward = 0
         '''
-        
+
         self.score += reward
 
         return reward
-    
+
 
 
 class ArmorScore(Score):
@@ -460,7 +460,7 @@ class ArmorScore(Score):
 
         if info["end_status"] != self.StepStatus.RUNNING:
             reward = 0.0
-        
+
         self.score += reward
 
         return reward
@@ -478,8 +478,8 @@ class PickupFoodScore(Score):
             num_corpses = np.sum([1 for item in comestible_inv_strs if b'corpse' in bytes(item)])
             num_comestibles -= num_corpses
         return num_comestibles
-        
-    
+
+
     def reward(self, env, last_observation, observation, info, training_info=None):
 
         self._inv_oclasses_indx = env._original_indices[env._original_observation_keys.index('inv_oclasses')]
@@ -492,11 +492,11 @@ class PickupFoodScore(Score):
 
         if info["end_status"] != self.StepStatus.RUNNING:
             reward = 0.0
-        
+
         self.score += reward
 
         return reward
-    
+
 
 
 class DlvlUpScore(Score):
@@ -511,7 +511,7 @@ class DlvlUpScore(Score):
 
         if info["end_status"] != self.StepStatus.RUNNING:
             reward = 0.0
-        
+
         self.score += reward
 
         return reward
@@ -528,13 +528,13 @@ class DlvlDownScore(Score):
 
         if info["end_status"] != self.StepStatus.RUNNING:
             reward = 0.0
-        
+
         self.score += reward
 
         return reward
-    
-    
-    
+
+
+
 
 class BucScore(Score):
     def __init__(self):
@@ -543,12 +543,12 @@ class BucScore(Score):
         self.patterns = {
             'buc': re.compile(r"(cursed|blessed|\(\d+:\d+\))")
         }
-        
+
     def reward(self, env, last_observation, observation, info, training_info=None):
         msg = bytes(observation[env._message_index]).decode('latin-1')
         reward = 0.0
         # this uniquely defines messages where objects are identified by altar.
-        # see: https://gist.github.com/tckmn/8078a34e3287ec32dadf#file-gistfile1-txt-L2849-L2850        
+        # see: https://gist.github.com/tckmn/8078a34e3287ec32dadf#file-gistfile1-txt-L2849-L2850
         if 'the altar.' in msg:
             if not bool(self.patterns['buc'].search(msg)):
                 reward = 1.0

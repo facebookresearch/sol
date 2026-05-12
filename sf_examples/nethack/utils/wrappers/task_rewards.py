@@ -50,7 +50,7 @@ class TaskRewardsInfoWrapper(gym.Wrapper, TrainingInfoInterface):
             ProjectileScore(),
             ArmorScore(),
             PickupFoodScore(),
-            EnhanceSkillScore(), 
+            EnhanceSkillScore(),
             DlvlUpScore(),
             DlvlDownScore(),
             BucScore(),
@@ -93,7 +93,7 @@ class TaskRewardsInfoWrapper(gym.Wrapper, TrainingInfoInterface):
 
         if term or trun:
             info["episode_extra_stats"] = self.add_more_stats(info)
-           
+
 
         info["intrinsic_rewards"] = timestep_rewards
 

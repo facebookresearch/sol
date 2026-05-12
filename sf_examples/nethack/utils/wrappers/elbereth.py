@@ -20,7 +20,7 @@ class ElberethWrapper(gym.Wrapper):
         # Macro-action for engraving Elbereth
         if self.env.actions[action] == nethack.Command.ENGRAVE and "What do you want to write with?" in message:
 
-            
+
             # write with fingertip in dust
 
             if not (term or trun):
@@ -29,32 +29,32 @@ class ElberethWrapper(gym.Wrapper):
 
             if term or trun:
                 return obs, reward, term, trun, info
-            
+
             if "Do you want to add to the current engraving?" in message:
                 obs, reward, term, trun, info = self.env.step(self.env.actions.index(ord("n")))
 
             if term or trun:
                 return obs, reward, term, trun, info
-                
+
             obs, reward, term, trun, info = self.env.step(self.env.actions.index(ord("\r")))
 
             if term or trun:
                 return obs, reward, term, trun, info
-            
+
             for l in "Elbereth":
                 obs, reward, term, trun, info = self.env.step(self.env.actions.index(ord(l)))
 
             if term or trun:
                 return obs, reward, term, trun, info
-                
+
             obs, reward, term, trun, info = self.env.step(self.env.actions.index(ord("\r")))
 
             if term or trun:
                 return obs, reward, term, trun, info
-            
+
             # check our work
             #obs, reward, term, trun, info = self.env.step(self.env.actions.index(ord(":")))
             #_, reward, term, trun, info = self.env.step(self.env.actions.index(ord("\r")))
             #print(bytes(obs["message"]).decode("latin-1"))
-            
+
         return obs, reward, term, trun, info

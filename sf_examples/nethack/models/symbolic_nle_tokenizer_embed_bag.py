@@ -14,8 +14,8 @@ from sf_examples.nethack.utils.nle_tokenizer.tokenizer import NLE_TOKENIZER
 
 
 
-            
-        
+
+
 
 class SymbolicGlyphTokenNetEmbeddingBag(Encoder):
     def __init__(self, cfg: Config, obs_space: ObsSpace):
@@ -28,16 +28,16 @@ class SymbolicGlyphTokenNetEmbeddingBag(Encoder):
         self.use_glyph_directions = cfg.use_glyph_directions
 
         self.encoder_out_size = 0
-        
+
         # glyph image encoder
         glyphs_shape = obs_space["glyphs"].shape
-        
+
         self.H = glyphs_shape[0]
         self.W = glyphs_shape[1]
         self.crop_dim = cfg.crop_dim
         self.edim = cfg.glyph_edim
         self.k_dim = 2 * self.edim
-        
+
         self.glyph_embed = nn.Embedding(nethack.MAX_GLYPH, self.edim)
         self.crop = Crop(self.H, self.W, self.crop_dim, self.crop_dim)
 
@@ -47,7 +47,7 @@ class SymbolicGlyphTokenNetEmbeddingBag(Encoder):
             nn.Conv2d(self.k_dim, 2 * self.k_dim, kernel_size=(3, 3), stride=2),
             nn.ELU(inplace=True),
         )
-        
+
         # embedding matrix for NLE tokens
         max_token = np.max(list(NLE_TOKENIZER.values()))
         self.token_embed = nn.EmbeddingBag(max_token + 1, self.k_dim, mode='sum', padding_idx=0)
@@ -55,11 +55,11 @@ class SymbolicGlyphTokenNetEmbeddingBag(Encoder):
 
         # learned embeddings to mark menu choices
         self.menu_pos_embed = nn.Parameter(torch.randn(1, cfg.max_menu_items, self.k_dim))
-        
-        # blstats encoder        
-        self.bottomline_encoder = torch.jit.script(BLStatsEncoder())        
+
+        # blstats encoder
+        self.bottomline_encoder = torch.jit.script(BLStatsEncoder())
         bottomline_shape = obs_space["blstats"].shape
-               
+
         if self.use_prev_action:
             self.num_actions = obs_space["prev_actions"].n
             self.prev_actions_dim = self.num_actions
@@ -72,7 +72,7 @@ class SymbolicGlyphTokenNetEmbeddingBag(Encoder):
         else:
             self.glyph_directions_dim = 0
 
-            
+
 
         self.encoder_out_size = sum(
             [
@@ -107,7 +107,7 @@ class SymbolicGlyphTokenNetEmbeddingBag(Encoder):
             proj_dim = int(self.k_dim / 4)
             self.dungeon_overview_proj = nn.Linear(self.k_dim, proj_dim, bias=False)
             self.encoder_out_size += self.cfg.max_dungeon_overview_levels * proj_dim
-            
+
 
         if self.cfg.with_sol:
             self.num_policies = self.obs_space['rewards'].shape[0]
@@ -121,7 +121,7 @@ class SymbolicGlyphTokenNetEmbeddingBag(Encoder):
             self.encoder_out_size += 3   # 3 alignments
 
 
-        
+
 
 
     def _select(self, embed, x, max_dim=None):
@@ -145,7 +145,7 @@ class SymbolicGlyphTokenNetEmbeddingBag(Encoder):
         B, H, W = glyphs.shape
 
         encodings = []
-                        
+
         bottomline_embed = self.bottomline_encoder(bottom_line.float(memory_format=torch.contiguous_format).view(B, -1))
         encodings.append(bottomline_embed)
 
@@ -156,7 +156,7 @@ class SymbolicGlyphTokenNetEmbeddingBag(Encoder):
             policy_embed = self.policy_encoder(obs_dict["current_policy_vec"].float().view(B, -1))
             encodings.append(policy_embed)
             crop_embed = crop_embed + policy_embed.unsqueeze(-1).unsqueeze(-1)
-        
+
         crop_embed = self.crop_conv(crop_embed)
         encodings.append(crop_embed.float(memory_format=torch.contiguous_format).view(B, -1))
 
@@ -170,18 +170,18 @@ class SymbolicGlyphTokenNetEmbeddingBag(Encoder):
 
         if self.use_glyph_directions:
             encodings.append(obs_dict["glyph_directions"])
-            
+
         tokens = obs_dict['msg_tok'].long()
         msg_embed = self.token_embed(tokens)
         encodings.append(msg_embed)
 
-        
+
         # embed the inventory
         tokens = obs_dict['inv_tok'].long()
         _, inv_rows, inv_cols = tokens.shape
         inv_embed = self.token_embed(tokens.view(B * inv_rows, inv_cols)).view(B, inv_rows, -1)
 
-        
+
         if self.cfg.inv_encoder_type == 'bow':
             # BoW over inventory items
             inv_embed = inv_embed.sum(1)
@@ -189,7 +189,7 @@ class SymbolicGlyphTokenNetEmbeddingBag(Encoder):
             # attention over inventory items with learnable queries
             inv_embed = F.scaled_dot_product_attention(self.queries.repeat(B, 1, 1), inv_embed, inv_embed)
             inv_embed = inv_embed.view(B, -1)
-            
+
         encodings.append(inv_embed)
 
         if self.cfg.use_menu_selection_wrapper:
@@ -218,7 +218,7 @@ class SymbolicGlyphTokenNetEmbeddingBag(Encoder):
             encodings.append(obs_dict['race'])
             encodings.append(obs_dict['align'])
 
-            
+
         return torch.cat(encodings, dim=1)
 
     def get_out_size(self) -> int:

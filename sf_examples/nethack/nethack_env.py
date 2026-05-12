@@ -11,13 +11,13 @@ from sf_examples.nethack.utils.wrappers import (
     NoProgressTimeout,
     PrevActionsWrapper,
     PrevRewardsWrapper,
-    MessageCountsWrapper, 
+    MessageCountsWrapper,
     TaskRewardsInfoWrapper,
     MenuSelectionWrapper,
     NLETokenizerWrapper,
     GlyphDirectionsWrapper,
-    ExtraObsWrapper, 
-    DungeonOverviewWrapper, 
+    ExtraObsWrapper,
+    DungeonOverviewWrapper,
     ElberethWrapper,
     EnhanceSkillsWrapper,
     TileTTY,
@@ -33,7 +33,7 @@ from sf_examples.nethack.utils.wrappers.extra_info import ExtraInfoWrapper
 
 def nethack_available():
     return is_module_available("nle")
-    
+
 
 class NetHackSpec:
     def __init__(self, name, env_id):
@@ -75,7 +75,7 @@ def nethack_env_by_name(name):
 
 def make_nethack_env(env_name, cfg, _env_config=None, render_mode: Optional[str] = None, **kwargs):
     nethack_spec = nethack_env_by_name(env_name)
-    
+
     observation_keys = (
         "message",
         "blstats",
@@ -107,14 +107,14 @@ def make_nethack_env(env_name, cfg, _env_config=None, render_mode: Optional[str]
         # "inv_letters",
         # "inv_oclasses",
 
-        
+
     if cfg.use_dungeon_overview_wrapper or cfg.use_menu_selection_wrapper:
         observation_keys += (
             "tty_chars",
         )
 
     observation_keys += ("inv_oclasses",)
-        
+
 
     if render_mode is not None:
         if render_mode == "human":
@@ -122,7 +122,7 @@ def make_nethack_env(env_name, cfg, _env_config=None, render_mode: Optional[str]
                 if key not in observation_keys:
                     observation_keys += (key,)
 
-                
+
 
     kwargs = dict(
         character=cfg.character,
@@ -139,7 +139,7 @@ def make_nethack_env(env_name, cfg, _env_config=None, render_mode: Optional[str]
 
     if env_name == "nethack_challenge":
         actions = list(nethack.ACTIONS)
-        
+
         kwargs.update(
             actions=tuple(actions),
             allow_all_modes=True,
@@ -147,7 +147,7 @@ def make_nethack_env(env_name, cfg, _env_config=None, render_mode: Optional[str]
 
     #if env_name in ("nethack_staircase", "nethack_pet", "nethack_oracle"):
     #    kwargs.update(reward_win=cfg.reward_win, reward_lose=cfg.reward_lose)
-        
+
     # else:  # print warning once
     # warnings.warn("Ignoring cfg.reward_win and cfg.reward_lose")
 
@@ -169,7 +169,7 @@ def make_nethack_env(env_name, cfg, _env_config=None, render_mode: Optional[str]
         env = PrevActionsWrapper(env)
 
     if cfg.use_prev_reward:
-        env = PrevRewardsWrapper(env)        
+        env = PrevRewardsWrapper(env)
 
     if cfg.use_glyph_directions:
         env = GlyphDirectionsWrapper(
@@ -187,13 +187,13 @@ def make_nethack_env(env_name, cfg, _env_config=None, render_mode: Optional[str]
             env,
             max_rows = cfg.max_dungeon_overview_levels
         )
-        
+
     if cfg.use_attributes_wrapper:
         env = ExtraObsWrapper(env)
 
     if cfg.use_menu_selection_wrapper:
         env = MenuSelectionWrapper(env, do_gui_menu_selection=True)
-        
+
         env = NLETokenizerWrapper(
             env,
             cfg.tokenizer_name,
@@ -212,7 +212,7 @@ def make_nethack_env(env_name, cfg, _env_config=None, render_mode: Optional[str]
         'dlvl_down_score': cfg.reward_scale_dlvl_down,
         'staircase_score': cfg.reward_scale_staircase,
         'eating_score': cfg.reward_scale_eating,
-        'pickup_food_score': cfg.reward_scale_pickup_food, 
+        'pickup_food_score': cfg.reward_scale_pickup_food,
         'kills_score': cfg.reward_scale_kills,
         'projectile_score': cfg.reward_scale_projectile,
         'enhance_skill_score': cfg.reward_scale_enhance_skill,
@@ -220,7 +220,7 @@ def make_nethack_env(env_name, cfg, _env_config=None, render_mode: Optional[str]
         'intrinsics_score': cfg.reward_scale_intrinsics,
         'buc_score': cfg.reward_scale_buc,
     }
-        
+
 
     if cfg.with_sol:
         sol_reward_scale = reward_scale
@@ -230,12 +230,12 @@ def make_nethack_env(env_name, cfg, _env_config=None, render_mode: Optional[str]
         base_policies = [
             r + '_score' if 'task_reward' not in r else r for r in cfg.sol_option_rewards.split(',')
         ]
-            
+
         controller_reward_key = cfg.sol_controller_reward_key
-        
+
         if 'task_reward' not in controller_reward_key:
             controller_reward_key += '_score'
-            
+
         env = HierarchicalWrapper(
             env,
             sol_reward_scale,

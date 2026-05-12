@@ -45,7 +45,7 @@ class ExtraInfoWrapper(gym.Wrapper):
 
     def _is_satiated(self, observation):
         blstats = observation[self.env.unwrapped._blstats_index]
-        satiated = blstats[21] == 0        
+        satiated = blstats[21] == 0
         return satiated
 
     def _is_hungry(self, observation):
@@ -71,4 +71,3 @@ class ExtraInfoWrapper(gym.Wrapper):
         xp_progress = ACHIEVEMENTS.get(xp, 0)
 
         return max(dlvl_progress, xp_progress) * 100.0
-    

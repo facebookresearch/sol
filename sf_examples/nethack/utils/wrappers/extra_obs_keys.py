@@ -66,7 +66,7 @@ class ExtraObsWrapper(gym.Wrapper):
         obs_spaces.update([(k, self.env.observation_space[k]) for k in self.env.observation_space])
         self.observation_space = gym.spaces.Dict(obs_spaces)
         self.actions_list = list(self.env.unwrapped.actions)
-                
+
 
     def _get_attributes(self):
         obs, reward, term, trun, info = self.env.step(self.actions_list.index(Command.ATTRIBUTES))
@@ -85,12 +85,12 @@ class ExtraObsWrapper(gym.Wrapper):
 
         # skip gender for now, it makes logic more complex due to some roles having implicit gender
         # (Priest/Priestess) and others not (Samurai) and has almost no effect on the game.
-        
+
         obs, reward, term, trun, info = self.env.step(self.actions_list.index(ord(' ')))
         obs, reward, term, trun, info = self.env.step(self.actions_list.index(ord(' ')))
 
         return obs, reward, term, trun, info
-        
+
 
     def _get_spells_strs(self):
         obs, reward, term, trun, info = self.env.step(self.actions_list.index(Command.SEESPELLS))
@@ -106,20 +106,20 @@ class ExtraObsWrapper(gym.Wrapper):
         obs, info = self.env.reset(**kwargs)
         obs, reward, term, trun, info = self._get_spells_strs()
         obs, reward, term, trun, info = self._get_attributes()
-        
+
         obs['role'] = self.role
         obs['race'] = self.race
         obs['align'] = self.alignment
         obs['spells_strs'] = self.spells_strs
-        
+
         return obs, info
-        
+
     def step(self, action):
         obs, reward, term, trun, info = self.env.step(action)
-        
+
         obs['role'] = self.role
-        obs['race'] = self.race                
+        obs['race'] = self.race
         obs['align'] = self.alignment
         obs['spells_strs'] = self.spells_strs
-        
+
         return obs, reward, term, trun, info

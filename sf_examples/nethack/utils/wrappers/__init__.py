@@ -22,7 +22,7 @@ __all__ = [
     MenuSelectionWrapper,
     NoProgressTimeout,
     MessageCountsWrapper,
-    ExtraObsWrapper, 
+    ExtraObsWrapper,
     NLETokenizerWrapper,
     GlyphDirectionsWrapper,
     ElberethWrapper,

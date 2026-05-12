@@ -111,5 +111,5 @@ NLE_TEXT_2_GLYPHS = defaultdict(int)
 
 for i, item in enumerate(NLE_CMAP):
     NLE_TEXT_2_GLYPHS[item] = i + nethack.GLYPH_CMAP_OFF
-    
-    
+
+

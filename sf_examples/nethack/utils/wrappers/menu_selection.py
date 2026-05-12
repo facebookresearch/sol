@@ -23,7 +23,7 @@ class MenuSelectionWrapper(gym.Wrapper):
         obs_spaces = {"menu_strs": gym.spaces.Box(0, 255, shape=(max_inv_choices, max_inv_str_length), dtype=np.uint8)}
         obs_spaces.update([(k, self.env.observation_space[k]) for k in self.env.observation_space])
         self.observation_space = gym.spaces.Dict(obs_spaces)
-                
+
         self.menu_exit_vector = np.array(list("exit menu".encode("latin-1")), dtype=np.uint8)
         self.menu_exit_vector = np.pad(self.menu_exit_vector, (0, max_inv_str_length - len(self.menu_exit_vector)))
 
@@ -214,7 +214,7 @@ class MenuSelectionWrapper(gym.Wrapper):
             # it may be an int if we are playing in the terminal, so check for it here.
             if not isinstance(action, int):
                 action = action[0]
-            
+
         obs, reward, term, trun, info = self.env.step(action)
 
         # If we are in a GUI multi-binary menu with "-" and "+", then we want to insert an ENTER
@@ -247,9 +247,9 @@ class MenuSelectionWrapper(gym.Wrapper):
 
         obs['menu_strs'] = self.menu_strs_np
         return obs, reward, term, trun, info
-        
-        
-        
-        
-        
-        
+
+
+
+
+
+

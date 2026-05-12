@@ -52,7 +52,7 @@ def parse_nethack_args(argv=None, evaluation=False):
     add_extra_params_general(parser)
     add_extra_params_rewards(parser)
     nethack_override_defaults(partial_cfg.env, parser)
-    final_cfg = parse_full_cfg(parser, argv)    
+    final_cfg = parse_full_cfg(parser, argv)
 
     return final_cfg
 
@@ -70,12 +70,12 @@ def main():  # pragma: no cover
             log.debug(f"[DDP] Weights and Biases integration disabled for rank {rank} process")
             cfg.with_wandb = False
 
-    
+
     if cfg.train_dir == "wandb_auto":
         init_wandb(cfg)  # should be done before writers are initialized
         cfg.train_dir = f"{wandb.run.dir}/train_dir"
         wandb.config.update({"local_train_dir": cfg.train_dir}, allow_val_change=True)
-        
+
     status = run_rl(cfg)
     return status
 

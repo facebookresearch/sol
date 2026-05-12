@@ -26,13 +26,13 @@ class TorchBeastMessageEncoder(Encoder):
 
     def __init__(self, cfg: Config):
         super().__init__(cfg)
-    
+
         # Define network
         out_dim = 0
 
         self.msg_model = "lt_cnn"
         self.h_dim = 512
-        
+
         if self.msg_model == "lt_cnn_small":
             self.msg_hdim = 32
             self.msg_edim = 16

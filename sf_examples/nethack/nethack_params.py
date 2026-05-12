@@ -17,7 +17,7 @@ def add_extra_params_nethack_env(parser):
     )
     p.add_argument(
         "--no_progress_timeout", type=int, default=30, help="after this many steps without acting in the env (incrementing a turn), exit."
-    )    
+    )
     p.add_argument(
         "--penalty_step", type=float, default=0.0, help="constant applied to amount of frozen steps. Defaults to 0.0."
     )
@@ -78,7 +78,7 @@ def add_extra_params_nethack_env(parser):
         type=str,
         default="none",
         help="How to include the inventory as input.",
-    )    
+    )
     p.add_argument("--crop_dim", type=int, default=18, help="Crop image around the player. Defaults to `18`.")
     p.add_argument(
         "--pixel_size",
@@ -118,7 +118,7 @@ def add_extra_params_nethack_env(parser):
         type=str2bool,
         default=False,
         help="Include attributes (i.e. class/race/alignment as obtained by #attributes) in the observation."
-    )    
+    )
     p.add_argument(
         "--remove_writing_actions",
         type=str2bool,
@@ -139,20 +139,20 @@ def add_extra_params_model(parser):
         help="If True, the model will use tty_chars for the topline and bottomline. Defaults to `True`",
     )
     # parameters specific to SymbolicGlyphNet
-    p.add_argument("--glyph_edim", type=int, default=64, help="Glyph Embedding Dim. Defaults to `64`")    
+    p.add_argument("--glyph_edim", type=int, default=64, help="Glyph Embedding Dim. Defaults to `64`")
     p.add_argument(
         "--use_glyph_directions",
         type=str2bool,
         default=False,
         help="Add features showing directions between agent and certain glyphs",
-    )    
+    )
     # parameters specific to ScaledNet
     p.add_argument("--h_dim", type=int, default=1738, help="Hidden dim for encoders. Defaults to `1738`")
     p.add_argument("--msg_hdim", type=int, default=64, help="Hidden dim for message encoder. Defaults to `64`")
     p.add_argument("--color_edim", type=int, default=16, help="Color Embedding Dim. Defaults to `16`")
     p.add_argument("--char_edim", type=int, default=16, help="Char Embedding Dim. Defaults to `16`")
-    
-    
+
+
     p.add_argument(
         "--use_crop",
         type=str2bool,
@@ -231,7 +231,7 @@ def add_extra_params_general(parser):
     p.add_argument(
         "--inv_query_std", type=float, default=0.01
     )
-    
+
 
 
 def add_extra_params_rewards(parser):

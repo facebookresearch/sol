@@ -14,20 +14,20 @@ class DungeonOverviewWrapper(gym.Wrapper):
         super().__init__(env)
 
         self.max_rows = max_rows
-        self.max_str_length = max_str_length 
+        self.max_str_length = max_str_length
 
         obs_spaces = {"overview_strs": gym.spaces.Box(0, 255, shape=(self.max_rows, self.max_str_length), dtype=np.uint8)}
         obs_spaces.update([(k, self.env.observation_space[k]) for k in self.env.observation_space])
         self.observation_space = gym.spaces.Dict(obs_spaces)
-        
+
         self.landmark_patterns = {
             'gnomish_mines': 'gnomish mines',
             'minetown': 'many shops',
-            'sokoban': 'sokoban', 
+            'sokoban': 'sokoban',
             'big_room': 'big room',
             'rogue': 'primitive',
             'quest': 'quest',
-            'fort_ludios': 'fort ludios', 
+            'fort_ludios': 'fort ludios',
             'castle': 'castle',
             'gehennom': 'gehennom',
         }
@@ -59,7 +59,7 @@ class DungeonOverviewWrapper(gym.Wrapper):
 
     def reset(self, **kwargs):
         obs, info = self.env.reset(**kwargs)
-        self._update_overview_strs()        
+        self._update_overview_strs()
         obs['overview_strs'] = self.overview_strs
 
         self.last_dlvl = obs['blstats'][nethack.NLE_BL_DLEVEL]
@@ -74,8 +74,8 @@ class DungeonOverviewWrapper(gym.Wrapper):
         extra_stats = info.get("episode_extra_stats", {})
         new_extra_stats = {f"visited_{k}": v for k, v in self.landmarks_visited.items()}
         return {**extra_stats, **new_extra_stats}
-    
-        
+
+
     def step(self, action):
         obs, reward, term, trun, info = self.env.step(action)
 
@@ -86,10 +86,10 @@ class DungeonOverviewWrapper(gym.Wrapper):
                 term = self._update_overview_strs()
 
         self.last_dlvl = dlvl
-        
+
         obs['overview_strs'] = self.overview_strs
 
         if term or trun:
             info["episode_extra_stats"] = self.add_more_stats(info)
-            
+
         return obs, reward, term, trun, info
