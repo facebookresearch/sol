@@ -107,7 +107,6 @@ def make_nethack_env(env_name, cfg, _env_config=None, render_mode: Optional[str]
         # "inv_letters",
         # "inv_oclasses",
 
-
     if cfg.use_dungeon_overview_wrapper or cfg.use_menu_selection_wrapper:
         observation_keys += (
             "tty_chars",
@@ -115,13 +114,11 @@ def make_nethack_env(env_name, cfg, _env_config=None, render_mode: Optional[str]
 
     observation_keys += ("inv_oclasses",)
 
-
     if render_mode is not None:
         if render_mode == "human":
             for key in ("tty_chars", "tty_colors", "tty_cursor"):
                 if key not in observation_keys:
                     observation_keys += (key,)
-
 
 
     kwargs = dict(
@@ -139,17 +136,12 @@ def make_nethack_env(env_name, cfg, _env_config=None, render_mode: Optional[str]
 
     if env_name == "nethack_challenge":
         actions = list(nethack.ACTIONS)
-
+        
         kwargs.update(
             actions=tuple(actions),
             allow_all_modes=True,
         )
 
-    #if env_name in ("nethack_staircase", "nethack_pet", "nethack_oracle"):
-    #    kwargs.update(reward_win=cfg.reward_win, reward_lose=cfg.reward_lose)
-
-    # else:  # print warning once
-    # warnings.warn("Ignoring cfg.reward_win and cfg.reward_lose")
 
     env = gym.make(nethack_spec.env_id, render_mode=render_mode, **kwargs)
 
@@ -161,7 +153,7 @@ def make_nethack_env(env_name, cfg, _env_config=None, render_mode: Optional[str]
             crop_size=cfg.crop_dim,
             rescale_font_size=(cfg.pixel_size, cfg.pixel_size),
         )
-
+        
     if cfg.llm_reward_type in ["motif", "motif_legacy"]:
         env = MessageCountsWrapper(env)
 

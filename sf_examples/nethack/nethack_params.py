@@ -79,7 +79,12 @@ def add_extra_params_nethack_env(parser):
         default="none",
         help="How to include the inventory as input.",
     )
-    p.add_argument("--crop_dim", type=int, default=18, help="Crop image around the player. Defaults to `18`.")
+    p.add_argument(
+        "--crop_dim",
+        type=int,
+        default=18,
+        help="Crop image around the player. Defaults to `18`."
+    )
     p.add_argument(
         "--pixel_size",
         type=int,
@@ -139,7 +144,12 @@ def add_extra_params_model(parser):
         help="If True, the model will use tty_chars for the topline and bottomline. Defaults to `True`",
     )
     # parameters specific to SymbolicGlyphNet
-    p.add_argument("--glyph_edim", type=int, default=64, help="Glyph Embedding Dim. Defaults to `64`")
+    p.add_argument(
+        "--glyph_edim",
+        type=int,
+        default=64,
+        help="Glyph Embedding Dim. Defaults to `64`"
+    )
     p.add_argument(
         "--use_glyph_directions",
         type=str2bool,
@@ -151,7 +161,6 @@ def add_extra_params_model(parser):
     p.add_argument("--msg_hdim", type=int, default=64, help="Hidden dim for message encoder. Defaults to `64`")
     p.add_argument("--color_edim", type=int, default=16, help="Color Embedding Dim. Defaults to `16`")
     p.add_argument("--char_edim", type=int, default=16, help="Char Embedding Dim. Defaults to `16`")
-
 
     p.add_argument(
         "--use_crop",
@@ -205,31 +214,52 @@ def add_extra_params_general(parser):
         "--tokenizer_name", type=str, default="dnd", help="nle | dnd"
     )
     p.add_argument(
-        "--max_token_length", type=int, default=12
+        "--max_token_length",
+        type=int,
+        default=12,
+        help="Max number of tokens per row (used for messages, menu choices, inventory rows, etc.)"
     )
 
     p.add_argument(
-        "--max_inv_items", type=int, default=24
+        "--max_inv_items",
+        type=int,
+        default=24,
+        help="Maximum number of inventory items to include in the observation"
     )
 
     p.add_argument(
-        "--max_menu_items", type=int, default=10
+        "--max_menu_items",
+        type=int,
+        default=10,
+        help="Maximum number of menu items to choose from in the menu selection wrapper."
     )
 
     p.add_argument(
-        "--token_embed_std", type=float, default=0.01
+        "--token_embed_std",
+        type=float,
+        default=0.01,
+        help="Standard deviation for token embedding distribution."
     )
 
     p.add_argument(
-        "--inv_encoder_type", type=str, default='att'
+        "--inv_encoder_type",
+        type=str,
+        default='att',
+        help="Encoding of the inventory into the observation. Can be bag-of-words or attention (bow | att)."
     )
 
     p.add_argument(
-        "--inv_query_heads", type=int, default=4
+        "--inv_query_heads",
+        type=int,
+        default=4,
+        help="Number of query heads to use in inventory encoding if using attention."
     )
 
     p.add_argument(
-        "--inv_query_std", type=float, default=0.01
+        "--inv_query_std",
+        type=float,
+        default=0.01,
+        help="Standard deviation for query vectors if using inventory attention."
     )
 
 
@@ -285,6 +315,15 @@ def add_extra_params_rewards(parser):
         "--reward_scale_experience", type=float, default=0.0, help="Experience reward scale."
     )
     p.add_argument(
+        "--reward_scale_dense_elbereth", type=float, default=0.0
+    )
+    p.add_argument(
+        "--reward_scale_buc", type=float, default=0.0
+    )
+    p.add_argument(
+        "--reward_scale_sokoban_fill_pit", type=float, default=0.0
+    )
+    p.add_argument(
         "--reward_scale_message", type=float, default=0.0
     )
     p.add_argument(
@@ -295,15 +334,6 @@ def add_extra_params_rewards(parser):
     )
     p.add_argument(
         "--messages_expend", type=str2bool, default=True
-    )
-    p.add_argument(
-        "--reward_scale_dense_elbereth", type=float, default=0.0
-    )
-    p.add_argument(
-        "--reward_scale_buc", type=float, default=0.0
-    )
-    p.add_argument(
-        "--reward_scale_sokoban_fill_pit", type=float, default=0.0
     )
 
 

@@ -13,10 +13,8 @@ from sf_examples.nethack.models.chaotic_dwarf import MessageEncoder, BLStatsEnco
 from sf_examples.nethack.utils.nle_tokenizer.tokenizer import NLE_TOKENIZER
 
 
-
-
-
-
+# Encoder to process the modifications described in: https://iclr-blogposts.github.io/2026/blog/2026/revisiting-the-nle/
+# All token embeddings (in message, inventory, menu, etc.) are processed via bag-of-words. 
 class SymbolicGlyphTokenNetEmbeddingBag(Encoder):
     def __init__(self, cfg: Config, obs_space: ObsSpace):
         super().__init__(cfg)
@@ -73,7 +71,6 @@ class SymbolicGlyphTokenNetEmbeddingBag(Encoder):
             self.glyph_directions_dim = 0
 
 
-
         self.encoder_out_size = sum(
             [
                 calc_num_elements(self.bottomline_encoder, bottomline_shape),
@@ -108,12 +105,10 @@ class SymbolicGlyphTokenNetEmbeddingBag(Encoder):
             self.dungeon_overview_proj = nn.Linear(self.k_dim, proj_dim, bias=False)
             self.encoder_out_size += self.cfg.max_dungeon_overview_levels * proj_dim
 
-
         if self.cfg.with_sol:
             self.num_policies = self.obs_space['rewards'].shape[0]
             self.policy_encoder = nn.Linear(self.num_policies, self.edim)
             self.encoder_out_size += self.edim
-
 
         if self.cfg.use_attributes_wrapper:
             self.encoder_out_size += 13  # 13 roles
@@ -144,14 +139,18 @@ class SymbolicGlyphTokenNetEmbeddingBag(Encoder):
         glyphs = obs_dict["glyphs"].int()
         B, H, W = glyphs.shape
 
+        # we will combine all encodings into this list and then concatenate
         encodings = []
 
+        # embed blstats
         bottomline_embed = self.bottomline_encoder(bottom_line.float(memory_format=torch.contiguous_format).view(B, -1))
         encodings.append(bottomline_embed)
 
+        # embed glyph crop around the agent
         coordinates = bottom_line[:, :2].int()
         crop_glyphs = self.crop(glyphs, coordinates)
         crop_embed = self._select(self.glyph_embed, crop_glyphs).permute(0, 3, 1, 2)
+        
         if self.cfg.with_sol:
             policy_embed = self.policy_encoder(obs_dict["current_policy_vec"].float().view(B, -1))
             encodings.append(policy_embed)
@@ -160,17 +159,21 @@ class SymbolicGlyphTokenNetEmbeddingBag(Encoder):
         crop_embed = self.crop_conv(crop_embed)
         encodings.append(crop_embed.float(memory_format=torch.contiguous_format).view(B, -1))
 
+        # previous action
         if self.use_prev_action:
             prev_actions = obs_dict["prev_actions"].long().view(B)
             encodings.append(torch.nn.functional.one_hot(prev_actions, self.num_actions))
 
+        # previous reward
         if self.cfg.use_prev_reward:
             prev_rewards = obs_dict["prev_rewards"]
             encodings.append(prev_rewards * self.cfg.reward_scale)
 
+        # directions to certain glyphs
         if self.use_glyph_directions:
             encodings.append(obs_dict["glyph_directions"])
 
+        # embed message
         tokens = obs_dict['msg_tok'].long()
         msg_embed = self.token_embed(tokens)
         encodings.append(msg_embed)
@@ -180,7 +183,6 @@ class SymbolicGlyphTokenNetEmbeddingBag(Encoder):
         tokens = obs_dict['inv_tok'].long()
         _, inv_rows, inv_cols = tokens.shape
         inv_embed = self.token_embed(tokens.view(B * inv_rows, inv_cols)).view(B, inv_rows, -1)
-
 
         if self.cfg.inv_encoder_type == 'bow':
             # BoW over inventory items
@@ -192,6 +194,7 @@ class SymbolicGlyphTokenNetEmbeddingBag(Encoder):
 
         encodings.append(inv_embed)
 
+        # embed menu if present
         if self.cfg.use_menu_selection_wrapper:
             tokens = obs_dict['menu_tok'].long()
             _, menu_rows, menu_cols = tokens.shape
@@ -200,12 +203,14 @@ class SymbolicGlyphTokenNetEmbeddingBag(Encoder):
             menu_embed = torch.sum(menu_embed * self.menu_pos_embed, dim=1)
             encodings.append(menu_embed)
 
+        # embed available spells 
         if self.cfg.use_spellcasting_wrapper:
             tokens = obs_dict['spells_tok'].long()
             _, spells_rows, spells_cols = tokens.shape
             spells_embed = self.token_embed(tokens.view(B * spells_rows, spells_cols)).view(B, spells_rows, -1)
             encodings.append(spells_embed.view(B, -1))
 
+        # embed dungeon overview
         if self.cfg.use_dungeon_overview_wrapper:
             tokens = obs_dict['overview_tok'].long()
             _, rows, cols = tokens.shape
@@ -213,12 +218,13 @@ class SymbolicGlyphTokenNetEmbeddingBag(Encoder):
             overview_embed = self.dungeon_overview_proj(overview_embed)
             encodings.append(overview_embed.view(B, -1))
 
+        # embed attributes
         if self.cfg.use_attributes_wrapper:
             encodings.append(obs_dict['role'])
             encodings.append(obs_dict['race'])
             encodings.append(obs_dict['align'])
 
-
+            
         return torch.cat(encodings, dim=1)
 
     def get_out_size(self) -> int:
