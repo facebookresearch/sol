@@ -43,6 +43,13 @@ cd sample_factory/algo/utils/cython
 python setup.py build_ext --inplace
 ```
 
+To use the patched NLE described below, do: 
+
+```
+cd nle_patched
+pip install -e .
+```
+
 ## Usage
 
 To run any experiment, use the `launch.py` script. This takes as argument a config `.yaml` file specifying all hyperparameters to sweep over. You can add values in a list and it will do a grid search over all combinations of hyperparameters.
