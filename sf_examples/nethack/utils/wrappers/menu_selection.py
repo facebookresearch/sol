@@ -6,7 +6,9 @@ from nle.env.base import ASCII_SPACE, ASCII_ESC
 from nle_patched.nle.nethack.actions import MiscAction
 
 
-class InventorySelectionWrapper(gym.Wrapper):
+# Menu interaction wrapper as described in the blog post: https://iclr-blogposts.github.io/2026/blog/2026/revisiting-the-nle/
+
+class MenuSelectionWrapper(gym.Wrapper):
     def __init__(self, env, do_gui_menu_selection=False, max_inv_choices=10, max_inv_str_length=80):
         super().__init__(env)
         self.max_inv_choices = max_inv_choices
