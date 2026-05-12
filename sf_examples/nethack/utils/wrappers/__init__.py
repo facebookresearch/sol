@@ -3,7 +3,7 @@ from sf_examples.nethack.utils.wrappers.no_progress_timeout import NoProgressTim
 from sf_examples.nethack.utils.wrappers.prev_actions import PrevActionsWrapper
 from sf_examples.nethack.utils.wrappers.prev_rewards import PrevRewardsWrapper
 from sf_examples.nethack.utils.wrappers.task_rewards import TaskRewardsInfoWrapper
-from sf_examples.nethack.utils.wrappers.inventory_selection import InventorySelectionWrapper
+from sf_examples.nethack.utils.wrappers.menu_selection import MenuSelectionWrapper
 from sf_examples.nethack.utils.wrappers.message_counts import MessageCountsWrapper
 from sf_examples.nethack.utils.wrappers.extra_obs_keys import ExtraObsWrapper
 from sf_examples.nethack.utils.wrappers.dungeon_overview import DungeonOverviewWrapper
@@ -19,7 +19,7 @@ __all__ = [
     TaskRewardsInfoWrapper,
     TileTTY,
     BlstatsInfoWrapper,
-    InventorySelectionWrapper,
+    MenuSelectionWrapper,
     NoProgressTimeout,
     MessageCountsWrapper,
     ExtraObsWrapper, 

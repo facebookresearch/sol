@@ -13,7 +13,7 @@ from sf_examples.nethack.utils.wrappers import (
     PrevRewardsWrapper,
     MessageCountsWrapper, 
     TaskRewardsInfoWrapper,
-    InventorySelectionWrapper,
+    MenuSelectionWrapper,
     NLETokenizerWrapper,
     GlyphDirectionsWrapper,
     ExtraObsWrapper, 
@@ -92,7 +92,7 @@ def make_nethack_env(env_name, cfg, _env_config=None, render_mode: Optional[str]
             "glyphs",
         )
 
-    if cfg.use_inv_selection_wrapper or cfg.inv_input_type == "tok":
+    if cfg.use_menu_selection_wrapper or cfg.inv_input_type == "tok":
         observation_keys += (
             "inv_strs",
             "inv_letters",
@@ -192,7 +192,7 @@ def make_nethack_env(env_name, cfg, _env_config=None, render_mode: Optional[str]
         env = ExtraObsWrapper(env)
 
     if cfg.use_menu_selection_wrapper:
-        env = InventorySelectionWrapper(env, do_gui_menu_selection=cfg.use_menu_selection_wrapper)
+        env = MenuSelectionWrapper(env, do_gui_menu_selection=True)
         
         env = NLETokenizerWrapper(
             env,

@@ -87,14 +87,10 @@ def add_extra_params_nethack_env(parser):
         help="Rescales each character to size of `(pixel_size, pixel_size). Defaults to `6`.",
     )
     p.add_argument(
-        "--use_inv_selection_wrapper",
-        type=str2bool,
-        default=False,
-    )
-    p.add_argument(
         "--use_menu_selection_wrapper",
         type=str2bool,
         default=False,
+        help="Use menu selection as described in: https://iclr-blogposts.github.io/2026/blog/2026/revisiting-the-nle/",
     )
     p.add_argument(
         "--use_spellcasting_wrapper",
@@ -110,6 +106,7 @@ def add_extra_params_nethack_env(parser):
         "--use_dungeon_overview_wrapper",
         type=str2bool,
         default=False,
+        help="Include the dungeon overview (as obtained by #overview) in the observation."
     )
     p.add_argument(
         "--max_dungeon_overview_levels",
@@ -120,6 +117,7 @@ def add_extra_params_nethack_env(parser):
         "--use_attributes_wrapper",
         type=str2bool,
         default=False,
+        help="Include attributes (i.e. class/race/alignment as obtained by #attributes) in the observation."
     )    
     p.add_argument(
         "--remove_writing_actions",
