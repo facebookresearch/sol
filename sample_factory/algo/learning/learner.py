@@ -583,22 +583,28 @@ class Learner(Configurable):
             self, action_distribution, valids, num_invalids, controller_action_dim, controller_indices, policy_indicators
     ) -> Tensor:
         entropies = [d.entropy().unsqueeze(dim=1) for d in action_distribution.distributions]        
-        total_entropy = torch.cat(entropies, dim=1)
 
-        # since the network outputs both option and controller action distributions each step, filter out
-        # the entropies of the option and controller, depending on which is active. 
-        options_entropy = total_entropy[:, :controller_action_dim].sum(dim=1)
-        controller_entropy = total_entropy[:, controller_action_dim:].sum(dim=1) * self.cfg.sol_controller_exploration_scale
+        if self.cfg.sol_corrected_logprobs:
+            total_entropy = torch.cat(entropies, dim=1)
+            # since the network outputs both option and controller action distributions each step, filter out
+            # the entropies of the option and controller, depending on which is active. 
+            options_entropy = total_entropy[:, :controller_action_dim].sum(dim=1)
+            controller_entropy = total_entropy[:, controller_action_dim:].sum(dim=1) * self.cfg.sol_controller_exploration_scale
 
-        if self._sol_option_exploration_scales is not None:
-            scales = self._sol_option_exploration_scales.to(options_entropy.device)
-            option_indicators = policy_indicators[:, :-1].float()
-            # weighted average of scales over active options (multi-hot safe)
-            num_active = option_indicators.sum(dim=-1).clamp(min=1)
-            option_scale = (option_indicators @ scales) / num_active
-            options_entropy = options_entropy * option_scale
+            if self._sol_option_exploration_scales is not None:
+                scales = self._sol_option_exploration_scales.to(options_entropy.device)
+                option_indicators = policy_indicators[:, :-1].float()
+                # weighted average of scales over active options (multi-hot safe)
+                num_active = option_indicators.sum(dim=-1).clamp(min=1)
+                option_scale = (option_indicators @ scales) / num_active
+                options_entropy = options_entropy * option_scale
 
-        entropy = torch.mul(controller_indices, controller_entropy) + torch.mul(1 - controller_indices, options_entropy)
+            entropy = torch.mul(controller_indices, controller_entropy) + torch.mul(1 - controller_indices, options_entropy)
+        else:
+            for i, e in enumerate(entropies):
+                if i >= controller_action_dim:
+                    entropies[i] = e * self.cfg.sol_controller_exploration_scale
+            entropy = torch.cat(entropies, dim=1).sum(dim=1)
         
         entropy = masked_select(entropy, valids, num_invalids)
         entropy_loss = -self.cfg.exploration_loss_coeff * entropy.mean()        
