@@ -1,8 +1,8 @@
-# Scalable Option Learning
-
 <p align="center">
   <b>Please find SOL at its new home at <a href="https://github.com/mbhenaff/sol">github.com/mbhenaff/sol</a></b>
 </p>
+
+# Scalable Option Learning
 
 Official implementation of Scalable Option Learning (SOL) and related algorithms. SOL is a highly scalable hierarchical RL algorithm which jointly learns option and controller policies from online interaction, described in the following paper:
 
