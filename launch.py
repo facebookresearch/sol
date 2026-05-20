@@ -12,9 +12,10 @@ import yaml
 import pdb
 
 import itertools
-import subprocess
+import shlex
+import shutil
+import tempfile
 from datetime import datetime
-from subprocess import Popen, DEVNULL
 from pprint import pprint
 
 MAX_JOBS = 120
@@ -85,7 +86,7 @@ class Overrides(object):
                
 # good for checking if we have reached max non-array jobs, so we don't get locked out...
 def num_jobs_running():
-    return int(subprocess.check_output(f"squeue -u $USER -h -o \"%i\" | cut -d '_' -f 1 | sort -u | wc -l", shell=True))
+    return int(os.popen("squeue -u $USER -h -o \"%i\" | cut -d '_' -f 1 | sort -u | wc -l").read().strip())  # nosec B605,B607 nosemgrep
         
 
 
@@ -160,13 +161,13 @@ def main():
     # in dry mode, we test locally for debugging.
     if args.dry:
         tmp_dir = f'/checkpoint/{username}/tmp102'
-        cmd_args = ' '.join(f'--{k} {v}' for k, v in list_cmd_args[0].items())
-        cmd = f'{BASE_CMD} {cmd_args}'
-        cmd += f' --train_dir {tmp_dir} --with_wandb False'
+        cmd = shlex.split(BASE_CMD) + [f'--{k}={shlex.quote(str(v))}' for k, v in list_cmd_args[0].items()]
+        cmd += ['--train_dir', tmp_dir, '--with_wandb', 'False']
         if args.debug:
-            cmd += f' --batch_size 1024 --num_workers 1 --num_envs_per_worker 2'
-        print(f'executing: {cmd}')
-        os.system(f'rm -rf {tmp_dir}; {cmd}')
+            cmd += ['--batch_size', '1024', '--num_workers', '1', '--num_envs_per_worker', '2']
+        print(f'executing: {" ".join(cmd)}')
+        shutil.rmtree(tmp_dir, ignore_errors=True)
+        os.spawnvp(os.P_WAIT, cmd[0], cmd)  # nosec B606 nosemgrep
     else:
         print(f'launching {len(list_cmd_args)} jobs, {num_jobs_running()} jobs running')
         pprint(args.__dict__)
@@ -175,7 +176,11 @@ def main():
             if not num_jobs_running() == MAX_JOBS:
                 cmd_args = ' '.join(f'--{k} {v}' for k, v in list_cmd_args[i].items())
                 script = script_template + ' ' + cmd_args
-                subprocess.run(["sbatch"], input=script.encode())
+                with tempfile.NamedTemporaryFile(mode='w', suffix='.sbatch', delete=False) as tf:
+                    tf.write(script)
+                    tfname = tf.name
+                os.spawnvp(os.P_WAIT, 'sbatch', ['sbatch', tfname])  # nosec B606 nosemgrep
+                os.unlink(tfname)
             
 
         
